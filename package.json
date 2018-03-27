@@ -1,0 +1,48 @@
+{
+  "name": "SvnErrorLookup",
+  "description": "SVN error lookup",
+  "version": "1.0.0",
+  "engines": {
+    "node": "4.x",
+    "npm": "3.x"
+  },
+  "scripts": {
+    "sass": "node-sass --include-path scss scss/index.scss public/bundle.css",
+    "browserify": "browserify react_components/boot.js -o public/bundle.js",
+    "uglifyjs": "uglifyjs public/bundle.js -m -o public/bundle.js",
+    "cleancss": "cleancss -o public/bundle.css public/bundle.css",
+    "build": "npm run browserify && npm run sass",
+    "release": "npm run build && npm run uglifyjs && npm run cleancss",
+    "postinstall": "npm run release",
+    "start": "node server.js"
+  },
+  "contributors": [
+    "Mathieu Albrespy <malbresp@matrox.com>"
+  ],
+  "license": "Proprietary",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "bootstrap": "github:twbs/bootstrap#v4-dev",
+    "browserify": "^13.1.0",
+    "clean-css": "^3.4.19",
+    "co": "^4.6.0",
+    "cookie-parser": "^1.4.1",
+    "express": "^4.13.4",
+    "express-session": "^1.13.0",
+    "font-awesome": "^4.6.3",
+    "jquery": "^2.2.2",
+    "node-sass": "^3.4.2",
+    "node-svn-ultimate": "^1.1.0",
+    "q-svn-spawn": "0.0.8",
+    "react": "^0.14.8",
+    "react-bootstrap": "^0.30.3",
+    "react-dom": "^0.14.8",
+    "react-router": "^2.0.1",
+    "serve-favicon": "^2.3.0",
+    "superagent": "^1.8.3",
+    "uglify-js": "^2.7.3"
+  },
+  "devDependencies": {
+    "jshint": "^2.9.3"
+  }
+}
