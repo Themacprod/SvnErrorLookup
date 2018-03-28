@@ -1,10 +1,15 @@
 "use strict";
 
 var React = require("react"),
-    userInput = require("./userInput");
+    userInput = require("./userInput"),
+    svnDisplay = require("./svnDisplay");
 
 module.exports = React.createClass({
     render: function() {
-        return React.createElement(userInput);
+        return React.DOM.div(
+            null,
+            React.createElement(userInput),
+            React.createElement(svnDisplay)
+        );
     }
 });
