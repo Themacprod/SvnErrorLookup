@@ -1,12 +1,13 @@
 "use strict";
 
 var React = require("react"),
+    _ = require("lodash"),
     request = require("superagent");
 
 module.exports = React.createClass({
     getInitialState: function() {
         return {
-            revision: "Unknown"
+            log: ["Unknown"]
         };
     },
     componentDidMount: function() {
@@ -15,7 +16,7 @@ module.exports = React.createClass({
             .send({
                 commit: this.props.commit,
                 filename: this.props.filename,
-                lineNumber: this.props.lineNumber
+                linenumber: this.props.lineNumber
             })
             .end(function(err, res) {
                 if (err) {
@@ -25,14 +26,19 @@ module.exports = React.createClass({
 
                 if (res) {
                     this.setState({
-                        revision: res.body.revision
+                        log: res.body.log
                     });
                 }
             }.bind(this));
     },
     render: function() {
         return React.DOM.div({
-                className: "svnDisplay"
-            }, "Revision: " + this.state.revision);
+            className: "svnDisplay"
+        }, _.map(this.state.log, function(log, key) {
+            console.log(log);
+            return React.DOM.div({
+                    key: key
+                }, log);
+            }));
     }
 });
