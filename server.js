@@ -8,8 +8,7 @@ var path = require("path"),
 	server = express(),
 	cacheMaxAge = process.env.NODE_ENV === "development" ? 0 : 3600000,
 	port = process.env.PORT || 5000,
-	svnUltimate = require("node-svn-ultimate");
-	// svnUtils = require("svn-utils");
+	svnData = require("./svnData");
 
 // Server setup.
 
@@ -31,45 +30,10 @@ server.use(express.static(path.join(__dirname, "public"), {
 	maxAge: cacheMaxAge
 }));
 
+server.post("/api/getSvnData", svnData.getData);
+
 server.get("*", function(req, res) {
 	res.sendFile(path.join(__dirname, "/public/index.html"));
-
-/*	svnUtils.log({
-		username: "mgisread",
-		password: "mgisread",
-		url: "https://trantor.matrox.com/mgisoft/Mediaprocessor/SV2/Trunk"
-	}, function(err, data) {
-		console.log("err =" + err);
-		console.log("data =" + data);
-	});
-*/
-	const options = {
-        trustServerCert: true,
-        username: "mgisread",
-        password: "mgisread",
-        shell: "", 			// override shell used to execute command
-        cwd: "",
-        quiet: true,
-        force: true,
-        revision: "151488",
-        depth: "",
-        ignoreExternals: true,
-        params: []
-    };
-
-/*	svnUltimate.util.getRevision("https://trantor.matrox.com/mgisoft/Mediaprocessor/SV2/Trunk", function(err, revision) {
-		console.log("err =" + err);
-		console.log("Head revision=" + revision);
-	});
-*/
-	svnUltimate.commands.log(
-		"https://trantor.matrox.com/mgisoft/Mediaprocessor/SV2/Trunk",
-		options,
-		function(err, data) {
-			console.log("err =" + err);
-			console.log("data=" + data);
-		}
-	);
 });
 
 server.listen(port, function() {
