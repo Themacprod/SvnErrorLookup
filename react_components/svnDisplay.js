@@ -7,7 +7,8 @@ var React = require("react"),
 module.exports = React.createClass({
     getInitialState: function() {
         return {
-            log: ["Unknown"]
+            log: ["Unknown"],
+            filePrev: ["Unknown"]
         };
     },
     componentDidMount: function() {
@@ -26,19 +27,32 @@ module.exports = React.createClass({
 
                 if (res) {
                     this.setState({
-                        log: res.body.log
+                        log: res.body.log,
+                        filePrev: res.body.filePrev
                     });
                 }
             }.bind(this));
     },
     render: function() {
-        return React.DOM.div({
-            className: "svnDisplay"
-        }, _.map(this.state.log, function(log, key) {
-            console.log(log);
-            return React.DOM.div({
-                    key: key
-                }, log);
-            }));
+        return React.DOM.div(
+            {
+                className: "svnDisplay"
+            },
+            React.DOM.div({
+                className: "svnLog"
+            }, _.map(this.state.log, function(log, key) {
+                return React.DOM.div({
+                        key: key
+                    }, log);
+            })),
+            React.DOM.div({
+                className: "svnFilePrev"
+            }, _.map(this.state.filePrev, function(filePrev, key) {
+                console.log(filePrev);
+                return React.DOM.div({
+                        key: key
+                    }, filePrev);
+            }))
+        );
     }
 });

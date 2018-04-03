@@ -30,6 +30,7 @@
     "bootstrap": "^4.0.0",
     "browserify": "^13.1.0",
     "buffer": "^5.1.0",
+    "child-process-promise": "^2.2.1",
     "clean-css": "^3.4.19",
     "co": "^4.6.0",
     "cookie-parser": "^1.4.1",

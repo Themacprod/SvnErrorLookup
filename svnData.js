@@ -2,7 +2,8 @@
 
 var _ = require("lodash"),
     XMLHttpRequest = require("xhr2"),
-    spawn = require("child_process");
+    spawn = require("child_process"),
+    promiseSpawn = require("child-process-promise");
 const svnRepo = "https://trantor.matrox.com/mgisoft/Mediaprocessor/SV2/Trunk";
 
 var buildCmd = function(baseCmd) {
@@ -29,72 +30,87 @@ var findFilePath = function(filename, commit) {
     return stdout;
 };
 
-var getTextFile = function(file, revision, callback) {
-    const fullPath = svnRepo + "/" + file + "/?p=" + revision;
-    var request = new XMLHttpRequest();
-    request.open(
-        "GET",
-        String(fullPath),
-        true
-    );
-    request.withCredentials = true;
-    request.setRequestHeader(
-        "Authorization",
-        "Basic " + Buffer.from("mgisread:mgisread").toString("base64")
-    );
+/**
+ * Return text file from SVN server from the passed in file input and at the specified SVN revision
+ * @param {string} filePath SVN file path of the file to get.
+ * @param {int} revision SVN revision of the file to fetch.
+ * @returns {file} Found file.
+ */
+var getTextFile = function(filePath, revision) {
+    return new Promise(function(resolve, reject) {
+        var request = new XMLHttpRequest();
 
-    request.send(null);
+        request.open(
+            "GET",
+            String(filePath + "/?p=" + revision),
+            true
+        );
 
-    request.onreadystatechange = function() {
-        if (request.readyState === 4 && request.status === 200) {
-            const type = request.getResponseHeader("Content-Type");
-            if (type.indexOf("text") !== 1) {
-                callback(request.responseText);
+        request.withCredentials = true;
+
+        /*
+         * When using setRequestHeader, you must call it after calling open,
+         * but before calling send
+         */
+        request.setRequestHeader(
+            "Authorization",
+            "Basic " + Buffer.from("mgisread:mgisread").toString("base64")
+        );
+        request.send(null);
+
+        request.responseType = "text";
+        request.onreadystatechange = function() {
+          if (request.readyState === XMLHttpRequest.DONE) {
+            if (request.status === 200) {
+              resolve(request.responseText);
+            } else {
+              reject(Error(request.statusText));
             }
-        }
-    };
+          }
+        };
+        request.onerror = function() {
+          reject(Error("Network Error"));
+        };
+      });
 };
 
-var getValidFile = function(files, revision, line) {
-    return _.find(files, function(file) {
-        getTextFile(file, revision, function(data) {
-            const lines = data.split(/\r?\n/);
-            // Seach for assert in the specified line.
-            return (
-                [
-                    "ASSERT",
-                    "ABORT"
-                ].indexOf(lines[line]) >= 0);
-        });
+/**
+ * Parse the array of file and return file(s) with an assert command in the specified line.
+ * For exemple with LDevices.cpp file, this name is used in 2 places.
+ * @param {array} filesName Array of SVN file path to check.
+ * @param {int} revision SVN revision of the file to fetch.
+ * @param {int} line Line number of the assert in the file.
+ * @returns {file} Found file.
+ */
+var getValidFile = function(filesName, revision, line) {
+    return _.find(filesName, function(fileName) {
+        const fullFilePath = svnRepo + "/" + fileName;
+
+        const fileContent = getTextFile(fullFilePath, revision);
+        const lines = fileContent.split(/\r?\n/);
+        // Seach for assert in the specified line.
+        return (
+            [
+                "ASSERT",
+                "ABORT"
+            ].indexOf(lines[line]) >= 0);
     });
 };
 
-var getSvnLog = function(file, revision, callback) {
+var getSvnLogStr = function(fileName, revision) {
     var cmd = "";
     cmd += "svn log -r " + revision + ":0 --limit 1 ";
-    cmd += svnRepo + "/" + file + " ";
+    cmd += svnRepo + "/" + fileName + " ";
     cmd += "--username mgisread ";
     cmd += "--password mgisread ";
     cmd += "--non-interactive ";
 
-    var svnLog = spawn.exec(cmd);
-
-    svnLog.stdout.on("data", function(data) {
-        callback(data.toString());
-    });
-
-    svnLog.stderr.on("data", function(data) {
-        console.log("stderr: " + data.toString());
-    });
-
-    svnLog.on("exit", function(code) {
-        console.log("child process exited with code: " + code.toString());
-    });
+    return cmd;
 };
 
 module.exports.getData = function(req, res) {
     // Const filename = req.body.filename || "LDevices.cpp";
-    const commit = req.body.commit || 150565;
+    const revision = req.body.commit || 150565;
     const lineNumber = req.body.linenumber || 1414;
 
     // const fileFound = findFilePath(filename, commit);
@@ -111,10 +127,21 @@ module.exports.getData = function(req, res) {
 //    if (fileFound.length >= 2) {
 //        getValidFile(fileFound, commit, lineNumber);
 //    }
+    // const ret = getSvnLog(fileFound[0], commit).split(/\r?\n/);
 
-    getSvnLog(fileFound[0], commit, function(log) {
+    var promiseGetLog = new Promise(function(resolve, reject) {
+        promiseSpawn.exec(getSvnLogStr(fileFound[0], revision))
+        .then(function(result) {
+            resolve(result.stdout.split(/\r?\n/));
+        })
+        .catch(function(err) {
+            reject(err);
+        });
+    });
+
+    Promise.all([promiseGetLog]).then(function(values) {
         res.json({
-            log: log.split(/\r?\n/)
+            log: values[0]
         });
     });
 };
