@@ -8,11 +8,11 @@ module.exports = React.createClass({
         const svnCommitStr = (/\[\d+(?!\d)\]/).exec(e.target.value);
         const fileStr = (/\w+.cpp\b/).exec(e.target.value);
 
-        if (codeLineStr && svnCommitStr) {
-            const codeLine = codeLineStr[0].substring(1, codeLineStr[0].length - 1);
-            const svnCommit = svnCommitStr[0].substring(1, svnCommitStr[0].length - 1);
+        if (codeLineStr && svnCommitStr && fileStr) {
+            const codeLine = parseInt(codeLineStr[0].substring(1, codeLineStr[0].length - 1), 10);
+            const svnCommit = parseInt(svnCommitStr[0].substring(1, svnCommitStr[0].length - 1), 10);
 
-            this.props.callback(svnCommit, fileStr, codeLine);
+            this.props.callback(svnCommit, fileStr[0], codeLine);
         }
     },
     render: function() {
