@@ -30,6 +30,12 @@ server.use(express.static(path.join(__dirname, "public"), {
 	maxAge: cacheMaxAge
 }));
 
+server.post("/api/getSvnFullPath", svnData.getFullPath);
+
+server.post("/api/getSvnLog", svnData.getLog);
+
+server.post("/api/getSvnFiles", svnData.getFiles);
+
 server.post("/api/getSvnData", svnData.getData);
 
 server.get("*", function(req, res) {

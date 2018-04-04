@@ -1,9 +1,10 @@
 "use strict";
 
 var _ = require("lodash"),
-    XMLHttpRequest = require("xhr2"),
+    XMLHttpRequestPromise = require("xhr-promise"),
     spawn = require("child_process"),
-    promiseSpawn = require("child-process-promise");
+    promiseSpawn = require("child-process-promise"),
+    XMLHttpRequest = require("xhr2");
 const svnRepo = "https://trantor.matrox.com/mgisoft/Mediaprocessor/SV2/Trunk";
 
 var buildCmd = function(baseCmd) {
@@ -38,40 +39,46 @@ var findFilePath = function(filename, commit) {
  */
 var getTextFile = function(filePath, revision) {
     return new Promise(function(resolve, reject) {
-        var request = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
 
-        request.open(
+        xhr.open(
             "GET",
             String(filePath + "/?p=" + revision),
             true
         );
 
-        request.withCredentials = true;
+        xhr.withCredentials = true;
 
         /*
          * When using setRequestHeader, you must call it after calling open,
          * but before calling send
          */
-        request.setRequestHeader(
+        xhr.setRequestHeader(
             "Authorization",
             "Basic " + Buffer.from("mgisread:mgisread").toString("base64")
         );
-        request.send(null);
 
-        request.responseType = "text";
-        request.onreadystatechange = function() {
-          if (request.readyState === XMLHttpRequest.DONE) {
-            if (request.status === 200) {
-              resolve(request.responseText);
+        xhr.responseType = "text";
+
+        xhr.onload = function() {
+            if (this.status >= 200 && this.status < 300) {
+                resolve(xhr.response);
             } else {
-              reject(Error(request.statusText));
+                reject(xhr.statusText);
             }
-          }
         };
-        request.onerror = function() {
-          reject(Error("Network Error"));
+        xhr.onerror = function() {
+            reject(xhr.statusText);
         };
-      });
+        xhr.ontimeout = function() {
+            reject(xhr.statusText);
+        };
+        xhr.onabort = function() {
+            reject(xhr.statusText);
+        };
+
+        xhr.send();
+    });
 };
 
 /**
@@ -100,12 +107,53 @@ var getValidFile = function(filesName, revision, line) {
 var getSvnLogStr = function(fileName, revision) {
     var cmd = "";
     cmd += "svn log -r " + revision + ":0 --limit 1 ";
-    cmd += svnRepo + "/" + fileName + " ";
+    cmd += fileName + " ";
     cmd += "--username mgisread ";
     cmd += "--password mgisread ";
     cmd += "--non-interactive ";
 
     return cmd;
+};
+
+module.exports.getFullPath = function(req, res) {
+    // const filename = req.body.filename || "LDevices.cpp";
+
+    // const fileFound = findFilePath(filename, commit);
+    const fileFound = [
+        "ExternalDeviceLayer/Core/XLiberatus/Core/LDevices.cpp",
+        "ExternalDeviceLayer/Core/XLiberatus/IocClientUm/LDevices.cpp"
+    ];
+
+    if (!fileFound) {
+        res.sendStatus(400);
+    }
+
+    res.json({
+        filePath: svnRepo + "/" + fileFound[0]
+    });
+};
+
+module.exports.getLog = function(req, res) {
+    promiseSpawn.exec(getSvnLogStr(req.body.filename, req.body.revision))
+    .then(function(result) {
+        res.json({
+            log: result.stdout.split(/\r?\n/)
+        });
+    });
+};
+
+module.exports.getFiles = function(req, res) {
+    getTextFile(req.body.filename, req.body.revision)
+    .then(function(result) {
+        res.json({
+            fileprev: result.split(/\r?\n/),
+            filecur: result.split(/\r?\n/)
+        });
+    })
+    .catch(function(err) {
+        console.log("err : " + err);
+        res.sendStatus(400);
+    });
 };
 
 module.exports.getData = function(req, res) {
@@ -139,9 +187,38 @@ module.exports.getData = function(req, res) {
         });
     });
 
-    Promise.all([promiseGetLog]).then(function(values) {
+    var promiseGetFile = new Promise(function(resolve, reject) {
+        getTextFile(fileFound[0], revision)
+        .then(function(result) {
+            resolve(result);
+        });
+
+        var xhrPromise = new XMLHttpRequestPromise();
+
+        xhrPromise.send({
+            method: "GET",
+            url: String(fileFound[0] + "/?p=" + revision),
+            data: null
+        })
+        .then(function(results) {
+            if (results.status !== 200) {
+                reject(results.status);
+            }
+            resolve(results.status);
+        })
+        .catch(function(e) {
+            console.error("XHR error" + e);
+            // ...
+        });
+    });
+
+    Promise.all([
+        promiseGetLog,
+        promiseGetFile
+    ]).then(function(values) {
         res.json({
-            log: values[0]
+            log: values[0],
+            filePrev: values[1]
         });
     });
 };

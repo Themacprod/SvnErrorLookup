@@ -9,7 +9,11 @@ module.exports = React.createClass({
         return React.DOM.div(
             null,
             React.createElement(userInput),
-            React.createElement(svnDisplay)
+            React.createElement(svnDisplay, {
+                filename: "LDevices.cpp",
+                revision: 150565,
+                line: 1414
+            })
         );
     }
 });

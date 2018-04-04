@@ -49,7 +49,9 @@
     "superagent": "^1.8.5",
     "svn-spawn": "^0.1.5",
     "uglify-js": "^2.7.3",
-    "xhr2": "^0.1.4"
+    "xhr-promise": "^2.0.0",
+    "xhr2": "^0.1.4",
+    "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
     "jshint": "^2.9.3",

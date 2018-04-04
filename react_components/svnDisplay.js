@@ -1,58 +1,92 @@
 "use strict";
 
 var React = require("react"),
-    _ = require("lodash"),
-    request = require("superagent");
+    request = require("superagent"),
+    svnLog = require("./svnDisplayLog"),
+    svnDiff = require("./svnDisplayDiff");
 
 module.exports = React.createClass({
     getInitialState: function() {
         return {
             log: ["Unknown"],
-            filePrev: ["Unknown"]
+            fileCur: ["Unknown"]
         };
     },
-    componentDidMount: function() {
+    getSvnFullPath: function() {
         request
-            .post("/api/getSvnData/")
+            .post("/api/getSvnFullPath/")
             .send({
-                commit: this.props.commit,
-                filename: this.props.filename,
-                linenumber: this.props.lineNumber
+                filename: this.props.filename
             })
             .end(function(err, res) {
                 if (err) {
-                    console.log("Get SVN data failed!");
+                    console.log("Get SVN full path failed!");
+                    return;
+                }
+
+                if (res) {
+                    this.getSvnLog(res.body.filePath);
+                }
+            }.bind(this));
+    },
+    getSvnLog: function(filePath) {
+        request
+            .post("/api/getSvnLog/")
+            .send({
+                filename: filePath,
+                revision: this.props.revision
+            })
+            .end(function(err, res) {
+                if (err) {
+                    console.log("Get SVN log failed!");
                     return;
                 }
 
                 if (res) {
                     this.setState({
-                        log: res.body.log,
-                        filePrev: res.body.filePrev
+                        log: res.body.log
+                    });
+                    this.getSvnFiles(filePath);
+                }
+            }.bind(this));
+    },
+    getSvnFiles: function(filePath) {
+        request
+            .post("/api/getSvnFiles/")
+            .send({
+                filename: filePath,
+                revision: this.props.revision
+            })
+            .end(function(err, res) {
+                if (err) {
+                    console.log("Get SVN log failed!");
+                    return;
+                }
+
+                if (res) {
+                    this.setState({
+                        filePrev: res.body.fileprev,
+                        fileCur: res.body.filecur
                     });
                 }
             }.bind(this));
+    },
+    componentDidMount: function() {
+        this.getSvnFullPath();
     },
     render: function() {
         return React.DOM.div(
             {
                 className: "svnDisplay"
             },
-            React.DOM.div({
-                className: "svnLog"
-            }, _.map(this.state.log, function(log, key) {
-                return React.DOM.div({
-                        key: key
-                    }, log);
-            })),
-            React.DOM.div({
-                className: "svnFilePrev"
-            }, _.map(this.state.filePrev, function(filePrev, key) {
-                console.log(filePrev);
-                return React.DOM.div({
-                        key: key
-                    }, filePrev);
-            }))
+            React.createElement(svnLog, {
+                log: this.state.log
+            }),
+            React.createElement(svnDiff, {
+                filePrev: this.state.filePrev,
+                fileCur: this.state.fileCur,
+                line: this.props.line
+            })
         );
     }
 });
