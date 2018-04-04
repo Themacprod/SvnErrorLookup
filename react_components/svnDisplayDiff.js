@@ -12,11 +12,13 @@ module.exports = React.createClass({
             React.createElement(fileDisplay, {
                 file: this.props.filePrev,
                 line: this.props.line,
+                highlight: false,
                 range: 15
             }),
             React.createElement(fileDisplay, {
                 file: this.props.fileCur,
                 line: this.props.line,
+                highlight: true,
                 range: 15
             })
         );
