@@ -16,7 +16,8 @@ module.exports = React.createClass({
         request
             .post("/api/getSvnFullPath/")
             .send({
-                filename: this.props.filename
+                filename: this.props.filename,
+                revision: this.props.revision
             })
             .end(function(err, res) {
                 if (err) {

@@ -1,33 +1,8 @@
 "use strict";
 
 var _ = require("lodash"),
-    spawn = require("child_process"),
     promiseSpawn = require("child-process-promise"),
     XMLHttpRequest = require("xhr2");
-
-var buildCmd = function(baseCmd) {
-    var cmd = "svn " + baseCmd + " " + process.env.SVN_REPO + " ";
-
-    cmd += "--username " + process.env.SVN_READ_USER + " ";
-    cmd += "--password " + process.env.SVN_READ_PASS + " ";
-    cmd += "--non-interactive ";
-    return cmd;
-};
-
-var findFilePath = function(filename, commit) {
-    var stdout = "";
-    spawn.exec(buildCmd("list") + "--depth infinity --revision " + commit + " | grep " + filename, function(error, stderr) {
-        if (error) {
-            console.log(error);
-        }
-
-        if (stderr) {
-            console.log(stderr);
-        }
-    });
-
-    return stdout;
-};
 
 /**
  * Parse the array of file and return file(s) with an assert command in the specified line.
@@ -50,33 +25,41 @@ var getValidFile = function(files, revision, line) {
     });
 };
 
-module.exports.getFullPath = function(req, res) {
-    // const filename = req.body.filename || "LDevices.cpp";
-
-    // const fileFound = findFilePath(filename, commit);
-    const fileFound = [
-        "ExternalDeviceLayer/Core/XLiberatus/Core/LDevices.cpp",
-        "ExternalDeviceLayer/Core/XLiberatus/IocClientUm/LDevices.cpp"
-    ];
-
-    if (!fileFound) {
-        res.sendStatus(400);
-    }
-
-    res.json({
-        filePath: process.env.SVN_REPO + "/" + fileFound[0]
-    });
+var getSvnBaseCmd = function() {
+    var svnCmd = "";
+    svnCmd += "--username " + process.env.SVN_READ_USER + " ";
+    svnCmd += "--password " + process.env.SVN_READ_PASS + " ";
+    svnCmd += "--non-interactive ";
+    return svnCmd;
 };
 
-var getSvnLogStr = function(fileName, revision) {
-    var cmd = "";
-    cmd += "svn log -r " + revision + ":0 --limit 1 ";
-    cmd += fileName + " ";
-    cmd += "--username " + process.env.SVN_READ_USER + " ";
-    cmd += "--password " + process.env.SVN_READ_PASS + " ";
-    cmd += "--non-interactive ";
+module.exports.getFullPath = function(req, res) {
+    const svnRepo = process.env.SVN_REPO + "/ExternalDeviceLayer/Core";
+    var svnCmd = "svn list " + svnRepo + " ";
 
-    return cmd;
+    svnCmd += getSvnBaseCmd();
+    svnCmd += "--depth infinity --revision " + req.body.revision;
+
+    promiseSpawn.exec(svnCmd + " | grep " + req.body.filename)
+    .then(function(result) {
+        var files = _.compact(result.stdout.split(/\r?\n/));
+
+        files = _.map(files, function(file) {
+            return svnRepo + "/" + file;
+        });
+
+        var fileFilter = _.filter(files, function(file) {
+            return file.indexOf("IocClientUm") === -1;
+        });
+
+        res.json({
+            filePath: fileFilter
+        });
+    })
+    .catch(function(err) {
+        console.log("svn list err : " + err);
+        res.sendStatus(400);
+    });
 };
 
 /**
@@ -130,11 +113,30 @@ var getTextFile = function(filePath, revision) {
 };
 
 module.exports.getLog = function(req, res) {
-    promiseSpawn.exec(getSvnLogStr(req.body.filename, req.body.revision))
+    var svnCmd = "";
+    svnCmd += "svn log -r " + req.body.revision + ":0 --limit 1 ";
+    svnCmd += req.body.filename + " ";
+    svnCmd += getSvnBaseCmd();
+
+    promiseSpawn.exec(svnCmd)
     .then(function(result) {
         res.json({
             log: result.stdout.split(/\r?\n/)
         });
+    })
+    .catch(function(err) {
+        console.log("getLog err : " + err);
+        res.sendStatus(400);
+    });
+};
+
+var promiseGetFile = function(filename, revision) {
+    getTextFile(filename, revision)
+    .then(function(result) {
+        return result.split(/\r?\n/);
+    })
+    .catch(function(err) {
+        return err;
     });
 };
 
@@ -147,7 +149,7 @@ module.exports.getFiles = function(req, res) {
         });
     })
     .catch(function(err) {
-        console.log("err : " + err);
+        console.log("getFiles err : " + err);
         res.sendStatus(400);
     });
 };
