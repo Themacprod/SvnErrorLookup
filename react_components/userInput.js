@@ -1,46 +1,30 @@
 "use strict";
 
-var React = require("react"),
-    rawInput = require("./rawInput"),
-    manualInput = require("./manualInput");
+var React = require("react");
 
 module.exports = React.createClass({
-    getInitialState: function() {
-        return {
-            commit: "",
-            filename: "",
-            lineNumber: ""
-        };
-    },
-    rawInputCallback: function(commit, filename, lineNumber) {
-        this.setState({
-            commit: commit,
-            filename: filename,
-            lineNumber: lineNumber
-        });
+    handleInputChange: function(e) {
+        const codeLineStr = (/\(\d+(?!\d)\)/).exec(e.target.value);
+        const svnCommitStr = (/\[\d+(?!\d)\]/).exec(e.target.value);
+        const fileStr = (/\w+.cpp\b/).exec(e.target.value);
+
+        if (codeLineStr && svnCommitStr) {
+            const codeLine = codeLineStr[0].substring(1, codeLineStr[0].length - 1);
+            const svnCommit = svnCommitStr[0].substring(1, svnCommitStr[0].length - 1);
+
+            this.props.callback(svnCommit, fileStr, codeLine);
+        }
     },
     render: function() {
         return React.DOM.div(
             {
                 className: "userinput"
             },
-            React.createElement(rawInput, {
-                callback: this.rawInputCallback
-            }),
-            React.createElement(manualInput, {
-                description: "Commit #",
-                placeHolder: "Enter manually commit #",
-                value: this.state.commit
-            }),
-            React.createElement(manualInput, {
-                description: "Filename",
-                placeHolder: "Enter filename",
-                value: this.state.filename
-            }),
-            React.createElement(manualInput, {
-                description: "Line #",
-                placeHolder: "Enter line number",
-                value: this.state.lineNumber
+            React.DOM.input({
+                className: "form-control form-control-lg",
+                type: "text",
+                placeholder: "Enter line",
+                onChange: this.handleInputChange
             })
         );
     }

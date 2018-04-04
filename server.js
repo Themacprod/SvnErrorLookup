@@ -36,8 +36,6 @@ server.post("/api/getSvnLog", svnData.getLog);
 
 server.post("/api/getSvnFiles", svnData.getFiles);
 
-server.post("/api/getSvnData", svnData.getData);
-
 server.get("*", function(req, res) {
 	res.sendFile(path.join(__dirname, "/public/index.html"));
 });
