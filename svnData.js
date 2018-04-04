@@ -4,13 +4,12 @@ var _ = require("lodash"),
     spawn = require("child_process"),
     promiseSpawn = require("child-process-promise"),
     XMLHttpRequest = require("xhr2");
-const svnRepo = "https://trantor.matrox.com/mgisoft/Mediaprocessor/SV2/Trunk";
 
 var buildCmd = function(baseCmd) {
-    var cmd = "svn " + baseCmd + " " + svnRepo + " ";
+    var cmd = "svn " + baseCmd + " " + process.env.SVN_REPO + " ";
 
-    cmd += "--username mgisread ";
-    cmd += "--password mgisread ";
+    cmd += "--username " + process.env.SVN_READ_USER + " ";
+    cmd += "--password " + process.env.SVN_READ_PASS + " ";
     cmd += "--non-interactive ";
     return cmd;
 };
@@ -65,7 +64,7 @@ module.exports.getFullPath = function(req, res) {
     }
 
     res.json({
-        filePath: svnRepo + "/" + fileFound[0]
+        filePath: process.env.SVN_REPO + "/" + fileFound[0]
     });
 };
 
@@ -73,8 +72,8 @@ var getSvnLogStr = function(fileName, revision) {
     var cmd = "";
     cmd += "svn log -r " + revision + ":0 --limit 1 ";
     cmd += fileName + " ";
-    cmd += "--username mgisread ";
-    cmd += "--password mgisread ";
+    cmd += "--username " + process.env.SVN_READ_USER + " ";
+    cmd += "--password " + process.env.SVN_READ_PASS + " ";
     cmd += "--non-interactive ";
 
     return cmd;
@@ -104,7 +103,7 @@ var getTextFile = function(filePath, revision) {
          */
         xhr.setRequestHeader(
             "Authorization",
-            "Basic " + Buffer.from("mgisread:mgisread").toString("base64")
+            "Basic " + Buffer.from(process.env.SVN_READ_USER + ":" + process.env.SVN_READ_PASS).toString("base64")
         );
 
         xhr.responseType = "text";
