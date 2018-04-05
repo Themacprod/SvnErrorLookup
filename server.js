@@ -32,7 +32,7 @@ server.post('/api/getSvnFullPath', svnData.getFullPath);
 
 server.post('/api/getSvnLog', svnData.getLog);
 
-server.post('/api/getSvnFiles', svnData.getFiles);
+server.post('/api/getSvnFile', svnData.getFile);
 
 server.get('*', function(req, res) {
 	res.sendFile(path.join(__dirname, '/public/index.html'));

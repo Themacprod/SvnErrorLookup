@@ -128,16 +128,15 @@ module.exports.getLog = function(req, res) {
     });
 };
 
-module.exports.getFiles = function(req, res) {
+module.exports.getFile = function(req, res) {
     getTextFile(req.body.filename, req.body.revision)
     .then(function(result) {
         res.json({
-            fileprev: result.split(/\r?\n/),
-            filecur: result.split(/\r?\n/)
+            file: result.split(/\r?\n/)
         });
     })
     .catch(function(err) {
-        console.log('getFiles err : ' + err);
+        console.log('getFile err : ' + err);
         res.sendStatus(400);
     });
 };

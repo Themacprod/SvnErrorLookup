@@ -1,5 +1,6 @@
 var React = require('react'),
     request = require('superagent'),
+    _ = require('lodash'),
     svnLog = require('./svnDisplayLog'),
     svnDiff = require('./svnDisplayDiff');
 
@@ -7,6 +8,7 @@ module.exports = React.createClass({
     getInitialState: function() {
         return {
             log: [],
+            filePrev: [],
             fileCur: []
         };
     },
@@ -45,27 +47,51 @@ module.exports = React.createClass({
                     this.setState({
                         log: res.body.log
                     });
-                    this.getSvnFiles(filePath);
+
+                    const prevRevision = _.words(res.body.log[1]);
+
+                    this.getSvnFilePrev(filePath, prevRevision[1]);
                 }
             }.bind(this));
     },
-    getSvnFiles: function(filePath) {
+    getSvnFilePrev: function(filePath, revision) {
         request
-            .post('/api/getSvnFiles/')
+            .post('/api/getSvnFile/')
+            .send({
+                filename: filePath,
+                revision: revision
+            })
+            .end(function(err, res) {
+                if (err) {
+                    console.log('Get SVN previous file failed!');
+                    return;
+                }
+
+                if (res) {
+                    this.setState({
+                        filePrev: res.body.file
+                    });
+
+                    this.getSvnFileCur(filePath);
+                }
+            }.bind(this));
+    },
+    getSvnFileCur: function(filePath) {
+        request
+            .post('/api/getSvnFile/')
             .send({
                 filename: filePath,
                 revision: this.props.revision
             })
             .end(function(err, res) {
                 if (err) {
-                    console.log('Get SVN log failed!');
+                    console.log('Get SVN current file failed!');
                     return;
                 }
 
                 if (res) {
                     this.setState({
-                        filePrev: res.body.fileprev,
-                        fileCur: res.body.filecur
+                        fileCur: res.body.file
                     });
                 }
             }.bind(this));
