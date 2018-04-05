@@ -1,6 +1,4 @@
-"use strict";
-
-var React = require("react");
+var React = require('react');
 
 module.exports = React.createClass({
     handleInputChange: function(e) {
@@ -18,12 +16,12 @@ module.exports = React.createClass({
     render: function() {
         return React.DOM.div(
             {
-                className: "userinput"
+                className: 'userinput'
             },
             React.DOM.input({
-                className: "form-control form-control-lg",
-                type: "text",
-                placeholder: "Enter line",
+                className: 'form-control form-control-lg',
+                type: 'text',
+                placeholder: 'Enter line',
                 onChange: this.handleInputChange
             })
         );

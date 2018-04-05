@@ -1,14 +1,12 @@
-"use strict";
-
-var React = require("react"),
-    userInput = require("./userInput"),
-    svnDisplay = require("./svnDisplay");
+var React = require('react'),
+    userInput = require('./userInput'),
+    svnDisplay = require('./svnDisplay');
 
 module.exports = React.createClass({
     getInitialState: function() {
         return {
             revision: 150565,
-            filename: "LDevices.cpp",
+            filename: 'LDevices.cpp',
             line: 1414
         };
     },

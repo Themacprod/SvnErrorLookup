@@ -1,27 +1,25 @@
-"use strict";
-
-var React = require("react"),
-    request = require("superagent"),
-    svnLog = require("./svnDisplayLog"),
-    svnDiff = require("./svnDisplayDiff");
+var React = require('react'),
+    request = require('superagent'),
+    svnLog = require('./svnDisplayLog'),
+    svnDiff = require('./svnDisplayDiff');
 
 module.exports = React.createClass({
     getInitialState: function() {
         return {
-            log: ["Unknown"],
-            fileCur: ["Unknown"]
+            log: [],
+            fileCur: []
         };
     },
     getSvnFullPath: function() {
         request
-            .post("/api/getSvnFullPath/")
+            .post('/api/getSvnFullPath/')
             .send({
                 filename: this.props.filename,
                 revision: this.props.revision
             })
             .end(function(err, res) {
                 if (err) {
-                    console.log("Get SVN full path failed!");
+                    console.log('Get SVN full path failed!');
                     return;
                 }
 
@@ -32,14 +30,14 @@ module.exports = React.createClass({
     },
     getSvnLog: function(filePath) {
         request
-            .post("/api/getSvnLog/")
+            .post('/api/getSvnLog/')
             .send({
                 filename: filePath,
                 revision: this.props.revision
             })
             .end(function(err, res) {
                 if (err) {
-                    console.log("Get SVN log failed!");
+                    console.log('Get SVN log failed!');
                     return;
                 }
 
@@ -53,14 +51,14 @@ module.exports = React.createClass({
     },
     getSvnFiles: function(filePath) {
         request
-            .post("/api/getSvnFiles/")
+            .post('/api/getSvnFiles/')
             .send({
                 filename: filePath,
                 revision: this.props.revision
             })
             .end(function(err, res) {
                 if (err) {
-                    console.log("Get SVN log failed!");
+                    console.log('Get SVN log failed!');
                     return;
                 }
 
@@ -78,7 +76,7 @@ module.exports = React.createClass({
     render: function() {
         return React.DOM.div(
             {
-                className: "svnDisplay"
+                className: 'svnDisplay'
             },
             React.createElement(svnLog, {
                 log: this.state.log

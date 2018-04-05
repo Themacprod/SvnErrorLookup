@@ -1,13 +1,11 @@
-"use strict";
-
-var React = require("react"),
-    fileDisplay = require("./svnDisplayFile");
+var React = require('react'),
+    fileDisplay = require('./svnDisplayFile');
 
 module.exports = React.createClass({
     render: function() {
         return React.DOM.div(
             {
-                className: "svnDiff"
+                className: 'svnDiff'
             },
             React.createElement(fileDisplay, {
                 file: this.props.filePrev,

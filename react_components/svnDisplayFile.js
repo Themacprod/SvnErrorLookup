@@ -1,7 +1,5 @@
-"use strict";
-
-var React = require("react"),
-    _ = require("lodash");
+var React = require('react'),
+    _ = require('lodash');
 
 module.exports = React.createClass({
     reduceContent: function(content) {
@@ -12,14 +10,15 @@ module.exports = React.createClass({
         });
     },
     render: function() {
+        const highLightIdx = this.props.line - this.props.range;
         return React.DOM.div({
-                className: "file"
+                className: 'file'
             }, _.map(this.reduceContent(this.props.file), _.bind(function(line, key) {
-                const lineIdx = key + this.props.line - this.props.range;
+                const lineIdx = key + highLightIdx;
 
-                var highLight = "line";
+                var highLight = 'line';
                 if (lineIdx === this.props.line && this.props.highlight) {
-                    highLight = "line-highLight";
+                    highLight = 'line-highLight';
                 }
 
                 return React.DOM.div(
@@ -27,10 +26,10 @@ module.exports = React.createClass({
                         className: highLight,
                         key: key
                     }, React.DOM.div({
-                        className: "idx"
+                        className: 'idx'
                     }, String(lineIdx)),
                     React.DOM.div({
-                        className: "content"
+                        className: 'content'
                     }, line)
                 );
             }, this)));

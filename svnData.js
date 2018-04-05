@@ -1,55 +1,31 @@
-"use strict";
-
-var _ = require("lodash"),
-    promiseSpawn = require("child-process-promise"),
-    XMLHttpRequest = require("xhr2");
-
-/**
- * Parse the array of file and return file(s) with an assert command in the specified line.
- * For exemple with LDevices.cpp file, this name is used in 2 places.
- * @param {array} files Array of SVN file path to check.
- * @param {int} revision SVN revision of the file to fetch.
- * @param {int} line Line number of the assert in the file.
- * @returns {file} Found file.
- */
-var getValidFile = function(files, revision, line) {
-    return _.filter(files, function(file) {
-        const fileContent = getTextFile(file, revision);
-        const lines = fileContent.split(/\r?\n/);
-        // Seach for assert in the specified line.
-        return (
-            [
-                "ASSERT",
-                "ABORT"
-            ].indexOf(lines[line]) >= 0);
-    });
-};
+var promiseSpawn = require('child-process-promise'),
+    XMLHttpRequest = require('xhr2');
 
 var getSvnBaseCmd = function() {
-    var svnCmd = "";
-    svnCmd += "--username " + process.env.SVN_READ_USER + " ";
-    svnCmd += "--password " + process.env.SVN_READ_PASS + " ";
-    svnCmd += "--non-interactive ";
+    var svnCmd = '';
+    svnCmd += '--username ' + process.env.SVN_READ_USER + ' ';
+    svnCmd += '--password ' + process.env.SVN_READ_PASS + ' ';
+    svnCmd += '--non-interactive ';
     return svnCmd;
 };
 
 module.exports.getFullPath = function(req, res) {
-    const svnRepo = process.env.SVN_REPO + "/ExternalDeviceLayer/Core";
-    var svnCmd = "svn list " + svnRepo + " ";
+    const svnRepo = process.env.SVN_REPO + '/ExternalDeviceLayer/Core';
+    var svnCmd = 'svn list ' + svnRepo + ' ';
 
     svnCmd += getSvnBaseCmd();
-    svnCmd += "--depth infinity --revision " + req.body.revision;
+    svnCmd += '--depth infinity --revision ' + req.body.revision;
 
-    promiseSpawn.exec(svnCmd + " | grep " + req.body.filename)
+    promiseSpawn.exec(svnCmd + ' | grep ' + req.body.filename)
     .then(function(result) {
         var files = _.compact(result.stdout.split(/\r?\n/));
 
         files = _.map(files, function(file) {
-            return svnRepo + "/" + file;
+            return svnRepo + '/' + file;
         });
 
         var fileFilter = _.filter(files, function(file) {
-            return file.indexOf("IocClientUm") === -1;
+            return file.indexOf('IocClientUm') === -1;
         });
 
         res.json({
@@ -57,7 +33,7 @@ module.exports.getFullPath = function(req, res) {
         });
     })
     .catch(function(err) {
-        console.log("svn list err : " + err);
+        console.log('svn list err : ' + err);
         res.sendStatus(400);
     });
 };
@@ -73,8 +49,8 @@ var getTextFile = function(filePath, revision) {
         var xhr = new XMLHttpRequest();
 
         xhr.open(
-            "GET",
-            String(filePath + "/?p=" + revision),
+            'GET',
+            String(filePath + '/?p=' + revision),
             true
         );
 
@@ -85,11 +61,11 @@ var getTextFile = function(filePath, revision) {
          * but before calling send
          */
         xhr.setRequestHeader(
-            "Authorization",
-            "Basic " + Buffer.from(process.env.SVN_READ_USER + ":" + process.env.SVN_READ_PASS).toString("base64")
+            'Authorization',
+            'Basic ' + Buffer.from(process.env.SVN_READ_USER + ':' + process.env.SVN_READ_PASS).toString('base64')
         );
 
-        xhr.responseType = "text";
+        xhr.responseType = 'text';
 
         xhr.onload = function() {
             if (this.status >= 200 && this.status < 300) {
@@ -112,10 +88,31 @@ var getTextFile = function(filePath, revision) {
     });
 };
 
+/**
+ * Parse the array of file and return file(s) with an assert command in the specified line.
+ * For exemple with LDevices.cpp file, this name is used in 2 places.
+ * @param {array} files Array of SVN file path to check.
+ * @param {int} revision SVN revision of the file to fetch.
+ * @param {int} line Line number of the assert in the file.
+ * @returns {file} Found file.
+ */
+var getValidFile = function(files, revision, line) {
+    return _.filter(files, function(file) {
+        const fileContent = getTextFile(file, revision);
+        const lines = fileContent.split(/\r?\n/);
+        // Seach for assert in the specified line.
+        return (
+            [
+                'ASSERT',
+                'ABORT',
+            ].indexOf(lines[line]) >= 0);
+    });
+};
+
 module.exports.getLog = function(req, res) {
-    var svnCmd = "";
-    svnCmd += "svn log -r " + req.body.revision + ":0 --limit 1 ";
-    svnCmd += req.body.filename + " ";
+    var svnCmd = '';
+    svnCmd += 'svn log -r ' + req.body.revision + ':0 --limit 1 ';
+    svnCmd += req.body.filename + ' ';
     svnCmd += getSvnBaseCmd();
 
     promiseSpawn.exec(svnCmd)
@@ -125,18 +122,8 @@ module.exports.getLog = function(req, res) {
         });
     })
     .catch(function(err) {
-        console.log("getLog err : " + err);
+        console.log('getLog err : ' + err);
         res.sendStatus(400);
-    });
-};
-
-var promiseGetFile = function(filename, revision) {
-    getTextFile(filename, revision)
-    .then(function(result) {
-        return result.split(/\r?\n/);
-    })
-    .catch(function(err) {
-        return err;
     });
 };
 
@@ -149,7 +136,7 @@ module.exports.getFiles = function(req, res) {
         });
     })
     .catch(function(err) {
-        console.log("getFiles err : " + err);
+        console.log('getFiles err : ' + err);
         res.sendStatus(400);
     });
 };

@@ -1,10 +1,8 @@
 /* global document:true */
 
-"use strict";
-
-var React = require("react"),
-    ReactDOM = require("react-dom"),
-    ReactRouter = require("react-router");
+var React = require('react'),
+    ReactDOM = require('react-dom'),
+    ReactRouter = require('react-router');
 
 var Boot = React.createClass({
     render: function() {
@@ -13,11 +11,11 @@ var Boot = React.createClass({
                 history: ReactRouter.browserHistory
             },
             React.createElement(ReactRouter.Route, {
-                path: "/:lang",
-                component: require("./app")
+                path: '/:lang',
+                component: require('./app')
             })
         );
     }
 });
 
-ReactDOM.render(React.createElement(Boot), document.getElementById("container"));
+ReactDOM.render(React.createElement(Boot), document.getElementById('container'));
