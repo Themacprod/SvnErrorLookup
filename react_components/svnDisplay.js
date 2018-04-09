@@ -84,6 +84,8 @@ module.exports = React.createClass({
                 revision: this.props.revision
             })
             .end(function(err, res) {
+                this.props.callBack();
+
                 if (err) {
                     console.log('Get SVN current file failed!');
                     return;
