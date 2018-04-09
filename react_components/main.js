@@ -29,9 +29,22 @@ module.exports = React.createClass({
         if (this.state.loading === true) {
             return React.DOM.div({
                 className: 'loading'
-            }, React.createElement(Spinner.PacmanLoader, {
-                loading: this.state.loading
-            }));
+            }, React.DOM.div(
+                {
+                    className: 'spinner'
+                },
+                React.DOM.strong(
+                    {
+                        className: 'loading-text'
+                    },
+                    "Fetching data on SVN server ..."
+                ),
+                React.createElement(Spinner.PacmanLoader, 
+                    {
+                        loading: this.state.loading
+                    }
+                )
+            ));
         }
 
         return null;
