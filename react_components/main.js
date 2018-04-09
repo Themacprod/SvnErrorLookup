@@ -5,9 +5,9 @@ var React = require('react'),
 module.exports = React.createClass({
     getInitialState: function() {
         return {
-            revision: 150565,
-            filename: 'LDevices.cpp',
-            line: 1414
+            revision: '',
+            filename: '',
+            line: ''
         };
     },
     inputCallback: function(revision, filename, line) {

@@ -96,10 +96,16 @@ module.exports = React.createClass({
                 }
             }.bind(this));
     },
-    componentDidMount: function() {
-        this.getSvnFullPath();
-    },
     render: function() {
+        if (this.props !== this.oldProps) {
+            this.oldProps = this.props;
+
+            if (this.props.filename !== '' &&
+                this.props.revision !== '') {
+                    this.getSvnFullPath();
+                }
+        }
+
         return React.DOM.div(
             {
                 className: 'svnDisplay'

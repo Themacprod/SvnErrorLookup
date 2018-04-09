@@ -14,7 +14,7 @@ module.exports = React.createClass({
         return React.DOM.div({
                 className: 'file'
             }, _.map(this.reduceContent(this.props.file), _.bind(function(line, key) {
-                const lineIdx = key + highLightIdx;
+                const lineIdx = key + highLightIdx + 1;
 
                 var highLight = 'line';
                 if (lineIdx === this.props.line && this.props.highlight) {
