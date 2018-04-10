@@ -16,7 +16,8 @@ module.exports = CreateReactClass({
                 options: {
                     mode: 'clike',
                     theme: 'material',
-                    lineNumbers: true
+                    lineNumbers: true,
+                    readOnly: true
                 },
                 editorDidMount: function(editor) {
                     editor.setCursor({
