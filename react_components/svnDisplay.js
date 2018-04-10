@@ -3,14 +3,15 @@ var React = require('react'),
     request = require('superagent'),
     _ = require('lodash'),
     svnLog = require('./svnDisplayLog'),
-    svnDiff = require('./svnDisplayDiff');
+    svnDisplayFile = require('./svnDisplayFile');
 
 module.exports = CreateReactClass({
     getInitialState: function() {
         return {
             log: [],
             filePrev: [],
-            fileCur: []
+            fileCur: [],
+            revPrev: 0
         };
     },
     getSvnFullPath: function() {
@@ -45,11 +46,12 @@ module.exports = CreateReactClass({
                 }
 
                 if (res) {
-                    this.setState({
-                        log: res.body.log
-                    });
-
                     const prevRevision = _.words(res.body.log[1]);
+
+                    this.setState({
+                        log: res.body.log,
+                        revPrev: prevRevision[1]
+                    });
 
                     this.getSvnFilePrev(filePath, prevRevision[1]);
                 }
@@ -119,11 +121,24 @@ module.exports = CreateReactClass({
                 curRevision: this.props.revision
             }),
             React.createElement('hr'),
-            React.createElement(svnDiff, {
-                filePrev: this.state.filePrev,
-                fileCur: this.state.fileCur,
-                line: this.props.line
-            })
+            React.createElement(
+                'div',
+                {
+                    className: 'svnDiff'
+                },
+                React.createElement(svnDisplayFile, {
+                    filename: this.props.filename,
+                    file: this.state.filePrev,
+                    line: this.props.line,
+                    revision: this.state.revPrev
+                }),
+                React.createElement(svnDisplayFile, {
+                    filename: this.props.filename,
+                    file: this.state.fileCur,
+                    line: this.props.line,
+                    revision: this.props.revision
+                })
+            )
         );
     }
 });

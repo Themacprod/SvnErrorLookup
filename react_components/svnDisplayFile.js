@@ -25,12 +25,26 @@ module.exports = CreateReactClass({
 
         return null;
     },
+    genTitle: function() {
+        if (this.props.filename && this.props.revision) {
+            return React.createElement(
+                'div',
+                {
+                    className: 'filename'
+                },
+                this.props.filename + ' @ ' + this.props.revision
+            );
+        }
+
+        return null;
+    },
     render: function() {
         return React.createElement(
             'div',
             {
                 className: 'file'
             },
+            this.genTitle(this.props.filename, this.props.revision),
             this.genFile(this.props.file, this.props.line)
         );
     }

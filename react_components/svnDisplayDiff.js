@@ -11,11 +11,13 @@ module.exports = CreateReactClass({
             },
             React.createElement(svnDisplayFile, {
                 file: this.props.filePrev,
-                line: this.props.line
+                line: this.props.line,
+                revision: this.props.revPev
             }),
             React.createElement(svnDisplayFile, {
                 file: this.props.fileCur,
-                line: this.props.line
+                line: this.props.line,
+                revision: this.props.revCur
             })
         );
     }
