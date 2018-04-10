@@ -11,6 +11,7 @@ module.exports = CreateReactClass({
             log: [],
             filePrev: [],
             fileCur: [],
+            fullPath: '',
             revPrev: 0
         };
     },
@@ -28,6 +29,10 @@ module.exports = CreateReactClass({
                 }
 
                 if (res) {
+                    this.setState({
+                        fullPath: res.body.filePath
+                    });
+
                     this.getSvnLog(res.body.filePath);
                 }
             }.bind(this));
@@ -118,7 +123,8 @@ module.exports = CreateReactClass({
             },
             React.createElement(svnLog, {
                 log: this.state.log,
-                curRevision: this.props.revision
+                curRevision: this.props.revision,
+                filename: this.props.filename
             }),
             React.createElement('hr'),
             React.createElement(
@@ -127,13 +133,13 @@ module.exports = CreateReactClass({
                     className: 'svnDiff'
                 },
                 React.createElement(svnDisplayFile, {
-                    filename: this.props.filename,
+                    filename: this.state.fullPath,
                     file: this.state.filePrev,
                     line: this.props.line,
                     revision: this.state.revPrev
                 }),
                 React.createElement(svnDisplayFile, {
-                    filename: this.props.filename,
+                    filename: this.state.fullPath,
                     file: this.state.fileCur,
                     line: this.props.line,
                     revision: this.props.revision
