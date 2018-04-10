@@ -100,8 +100,8 @@ module.exports = CreateReactClass({
             }.bind(this));
     },
     render: function() {
-        if (this.props !== this.oldProps) {
-            this.oldProps = this.props;
+        if (this.props.filename !== this.oldFilename) {
+            this.oldFilename = this.props.filename;
 
             if (this.props.filename !== '' &&
                 this.props.revision !== '') {
@@ -115,7 +115,8 @@ module.exports = CreateReactClass({
                 className: 'svnDisplay'
             },
             React.createElement(svnLog, {
-                log: this.state.log
+                log: this.state.log,
+                curRevision: this.props.revision
             }),
             React.createElement(svnDiff, {
                 filePrev: this.state.filePrev,
