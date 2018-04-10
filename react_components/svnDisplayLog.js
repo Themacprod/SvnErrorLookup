@@ -57,6 +57,13 @@ module.exports = CreateReactClass({
             {
                 className: 'svnLog'
             },
+            React.createElement(
+                'div',
+                {
+                    className: 'svnLog'
+                },
+                'Last changes since revision ' + this.props.curRevision + ' :'
+            ),
             this.logDetail(),
             this.logMessage()
         );
