@@ -7,6 +7,7 @@ var React = require('react'),
 module.exports = CreateReactClass({
     componentDidMount: function() {
         global.jQuery = require('jquery');
+        require('codemirror/mode/clike/clike');
     },
     render: function() {
         return React.createElement(

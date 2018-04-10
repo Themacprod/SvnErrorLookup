@@ -118,6 +118,7 @@ module.exports = CreateReactClass({
                 log: this.state.log,
                 curRevision: this.props.revision
             }),
+            React.createElement('hr'),
             React.createElement(svnDiff, {
                 filePrev: this.state.filePrev,
                 fileCur: this.state.fileCur,

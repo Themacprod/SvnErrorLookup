@@ -58,7 +58,7 @@ module.exports = CreateReactClass({
                 className: 'svnLog'
             },
             React.createElement(
-                'div',
+                'h4',
                 {
                     className: 'svnLog'
                 },

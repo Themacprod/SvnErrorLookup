@@ -65,6 +65,7 @@ module.exports = CreateReactClass({
                 React.createElement(userInput, {
                     callback: this.inputCallback
                 }),
+                React.createElement('hr'),
                 React.createElement(svnDisplay, {
                     filename: this.state.filename,
                     revision: this.state.revision,
