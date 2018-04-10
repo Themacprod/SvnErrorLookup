@@ -28,19 +28,22 @@ module.exports = CreateReactClass({
     },
     createLoading: function() {
         if (this.state.loading === true) {
-            return React.createElement("div", {
+            return React.createElement('div', {
                 className: 'loading'
-            }, React.createElement("div",
+            }, React.createElement(
+                'div',
                 {
                     className: 'spinner'
                 },
-                React.createElement("strong",
+                React.createElement(
+                    'strong',
                     {
                         className: 'loading-text'
                     },
-                    "Fetching data on SVN server ..."
+                    'Fetching data on SVN server ...'
                 ),
-                React.createElement(Spinner.PacmanLoader, 
+                React.createElement(
+                    Spinner.PacmanLoader,
                     {
                         loading: this.state.loading
                     }
@@ -51,10 +54,13 @@ module.exports = CreateReactClass({
         return null;
     },
     render: function() {
-        return React.createElement("div", {
-            className: 'main'
-        },
-            React.createElement("div", 
+        return React.createElement(
+            'div',
+            {
+                className: 'main'
+            },
+            React.createElement(
+                'div',
                 null,
                 React.createElement(userInput, {
                     callback: this.inputCallback

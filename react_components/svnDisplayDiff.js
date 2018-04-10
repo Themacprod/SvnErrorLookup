@@ -4,7 +4,8 @@ var React = require('react'),
 
 module.exports = CreateReactClass({
     render: function() {
-        return React.createElement("div",
+        return React.createElement(
+            'div',
             {
                 className: 'svnDiff'
             },

@@ -1,28 +1,31 @@
 var React = require('react'),
-    CreateReactClass = require('create-react-class')
+    CreateReactClass = require('create-react-class'),
     _ = require('lodash');
 
 module.exports = CreateReactClass({
     listGroup: function(section, detail, classname) {
-        return React.createElement("div",
+        return React.createElement(
+            'div',
             {
                 className: classname
             },
-            React.createElement("ul",
+            React.createElement(
+            'ul',
             {
                 className: 'list-group'
-            }, React.createElement("li", {
+            }, React.createElement('li', {
                     className: 'list-group-item list-group-item-dark'
                 }, section),
-                React.createElement("li", {
+                React.createElement('li', {
                     className: 'list-group-item'
                 }, detail)
             )
-        ); 
+        );
     },
     logDetail: function() {
         const lineWords = _.words(this.props.log[1]);
-        return React.createElement("div",
+        return React.createElement(
+            'div',
             {
                 className: 'detail'
             },
@@ -36,19 +39,21 @@ module.exports = CreateReactClass({
             return key >= 3 && key < this.props.log.length - 2;
         }.bind(this));
 
-        return React.createElement("div",
+        return React.createElement(
+            'div',
             {
                 className: 'message'
             },
             _.map(logStr, function(log, key) {
-                return React.createElement("div", {
+                return React.createElement('div', {
                         key: key
                     }, log);
                 })
         );
     },
     render: function() {
-        return React.createElement("div",
+        return React.createElement(
+            'div',
             {
                 className: 'svnLog'
             },

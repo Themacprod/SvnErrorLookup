@@ -16,12 +16,12 @@ module.exports = CreateReactClass({
     },
     render: function() {
         return React.createElement(
-            "div",
+            'div',
             {
                 className: 'userinput'
             },
             React.createElement(
-                "input",
+                'input',
                 {
                     className: 'form-control form-control-lg',
                     type: 'text',

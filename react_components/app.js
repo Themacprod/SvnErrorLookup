@@ -10,7 +10,7 @@ module.exports = CreateReactClass({
     },
     render: function() {
         return React.createElement(
-            "div",
+            'div',
             {
                 className: 'app'
             },

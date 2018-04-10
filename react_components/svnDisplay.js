@@ -109,7 +109,8 @@ module.exports = CreateReactClass({
                 }
         }
 
-        return React.createElement("div",
+        return React.createElement(
+            'div',
             {
                 className: 'svnDisplay'
             },
