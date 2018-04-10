@@ -25,7 +25,7 @@ module.exports = CreateReactClass({
                 {
                     className: 'form-control form-control-lg',
                     type: 'text',
-                    placeholder: 'Enter line',
+                    placeholder: 'Enter line like \'[  638.620997] sv2[151862]: (Error) XDevFpgaBrg.cpp(620) Assertion failed\'',
                     onChange: this.handleInputChange
                 }
             )
