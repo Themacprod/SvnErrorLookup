@@ -1,27 +1,28 @@
 var React = require('react'),
+    CreateReactClass = require('create-react-class')
     _ = require('lodash');
 
-module.exports = React.createClass({
+module.exports = CreateReactClass({
     listGroup: function(section, detail, classname) {
-        return React.DOM.div(
+        return React.createElement("div",
             {
                 className: classname
             },
-            React.DOM.ul(
+            React.createElement("ul",
             {
                 className: 'list-group'
-            }, React.DOM.li({
+            }, React.createElement("li", {
                     className: 'list-group-item list-group-item-dark'
                 }, section),
-            React.DOM.li({
+                React.createElement("li", {
                     className: 'list-group-item'
                 }, detail)
             )
-        );
+        ); 
     },
     logDetail: function() {
         const lineWords = _.words(this.props.log[1]);
-        return React.DOM.div(
+        return React.createElement("div",
             {
                 className: 'detail'
             },
@@ -35,19 +36,19 @@ module.exports = React.createClass({
             return key >= 3 && key < this.props.log.length - 2;
         }.bind(this));
 
-        return React.DOM.div(
+        return React.createElement("div",
             {
                 className: 'message'
             },
             _.map(logStr, function(log, key) {
-                return React.DOM.div({
+                return React.createElement("div", {
                         key: key
                     }, log);
                 })
         );
     },
     render: function() {
-        return React.DOM.div(
+        return React.createElement("div",
             {
                 className: 'svnLog'
             },

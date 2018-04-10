@@ -1,9 +1,10 @@
 var React = require('react'),
+    CreateReactClass = require('create-react-class'),
     fileDisplay = require('./svnDisplayFile');
 
-module.exports = React.createClass({
+module.exports = CreateReactClass({
     render: function() {
-        return React.DOM.div(
+        return React.createElement("div",
             {
                 className: 'svnDiff'
             },

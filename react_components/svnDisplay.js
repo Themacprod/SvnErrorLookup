@@ -1,10 +1,11 @@
 var React = require('react'),
+    CreateReactClass = require('create-react-class'),
     request = require('superagent'),
     _ = require('lodash'),
     svnLog = require('./svnDisplayLog'),
     svnDiff = require('./svnDisplayDiff');
 
-module.exports = React.createClass({
+module.exports = CreateReactClass({
     getInitialState: function() {
         return {
             log: [],
@@ -108,7 +109,7 @@ module.exports = React.createClass({
                 }
         }
 
-        return React.DOM.div(
+        return React.createElement("div",
             {
                 className: 'svnDisplay'
             },

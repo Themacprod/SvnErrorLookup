@@ -1,14 +1,16 @@
 /* global document:true */
 
 var React = require('react'),
+    CreateReactClass = require('create-react-class'),
     ReactDOM = require('react-dom'),
-    ReactRouter = require('react-router');
+    CreateHistory = require('history'),
+    ReactRouter = require('react-router-dom');
 
-var Boot = React.createClass({
+var Boot = CreateReactClass({
     render: function() {
         return React.createElement(
             ReactRouter.Router, {
-                history: ReactRouter.browserHistory
+                history: CreateHistory.createBrowserHistory()
             },
             React.createElement(ReactRouter.Route, {
                 path: '/:lang',

@@ -1,6 +1,7 @@
-var React = require('react');
+var React = require('react'),
+    CreateReactClass = require('create-react-class');
 
-module.exports = React.createClass({
+module.exports = CreateReactClass({
     handleInputChange: function(e) {
         const codeLineStr = (/\(\d+(?!\d)\)/).exec(e.target.value);
         const svnCommitStr = (/\[\d+(?!\d)\]/).exec(e.target.value);
@@ -14,16 +15,20 @@ module.exports = React.createClass({
         }
     },
     render: function() {
-        return React.DOM.div(
+        return React.createElement(
+            "div",
             {
                 className: 'userinput'
             },
-            React.DOM.input({
-                className: 'form-control form-control-lg',
-                type: 'text',
-                placeholder: 'Enter line',
-                onChange: this.handleInputChange
-            })
+            React.createElement(
+                "input",
+                {
+                    className: 'form-control form-control-lg',
+                    type: 'text',
+                    placeholder: 'Enter line',
+                    onChange: this.handleInputChange
+                }
+            )
         );
     }
 });

@@ -1,7 +1,8 @@
 var React = require('react'),
+    CreateReactClass = require('create-react-class'),
     _ = require('lodash');
 
-module.exports = React.createClass({
+module.exports = CreateReactClass({
     reduceContent: function(content) {
         const lineUp = this.props.line - this.props.range;
         const lineDown = this.props.line + this.props.range;
@@ -11,7 +12,7 @@ module.exports = React.createClass({
     },
     render: function() {
         const highLightIdx = this.props.line - this.props.range;
-        return React.DOM.div({
+        return React.createElement("div", {
                 className: 'file'
             }, _.map(this.reduceContent(this.props.file), _.bind(function(line, key) {
                 const lineIdx = key + highLightIdx + 1;
@@ -21,14 +22,14 @@ module.exports = React.createClass({
                     highLight = 'line-highLight';
                 }
 
-                return React.DOM.div(
+                return React.createElement("div",
                     {
                         className: highLight,
                         key: key
-                    }, React.DOM.div({
+                    }, React.createElement("div", {
                         className: 'idx'
                     }, String(lineIdx)),
-                    React.DOM.div({
+                    React.createElement("div", {
                         className: 'content'
                     }, line)
                 );

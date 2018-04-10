@@ -1,15 +1,16 @@
 /* global module:true */
 
 var React = require('react'),
+    CreateReactClass = require('create-react-class'),
     main = require('./main');
 
-module.exports = React.createClass({
+module.exports = CreateReactClass({
     componentDidMount: function() {
         global.jQuery = require('jquery');
-        require('../node_modules/react-bootstrap/lib');
     },
     render: function() {
-        return React.DOM.div(
+        return React.createElement(
+            "div",
             {
                 className: 'app'
             },

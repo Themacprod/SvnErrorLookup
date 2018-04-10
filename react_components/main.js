@@ -1,9 +1,10 @@
 var React = require('react'),
+    CreateReactClass = require('create-react-class'),
     Spinner = require('react-spinners'),
     userInput = require('./userInput'),
     svnDisplay = require('./svnDisplay');
 
-module.exports = React.createClass({
+module.exports = CreateReactClass({
     getInitialState: function() {
         return {
             revision: '',
@@ -27,13 +28,13 @@ module.exports = React.createClass({
     },
     createLoading: function() {
         if (this.state.loading === true) {
-            return React.DOM.div({
+            return React.createElement("div", {
                 className: 'loading'
-            }, React.DOM.div(
+            }, React.createElement("div",
                 {
                     className: 'spinner'
                 },
-                React.DOM.strong(
+                React.createElement("strong",
                     {
                         className: 'loading-text'
                     },
@@ -50,10 +51,10 @@ module.exports = React.createClass({
         return null;
     },
     render: function() {
-        return React.DOM.div({
+        return React.createElement("div", {
             className: 'main'
         },
-            React.DOM.div(
+            React.createElement("div", 
                 null,
                 React.createElement(userInput, {
                     callback: this.inputCallback
