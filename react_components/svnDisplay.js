@@ -24,7 +24,7 @@ module.exports = CreateReactClass({
             })
             .end(function (err, res) {
                 if (err) {
-                    console.log('Get SVN full path failed!');
+                    console.error('Get SVN full path failed!');
                     return;
                 }
 
@@ -46,7 +46,7 @@ module.exports = CreateReactClass({
             })
             .end(function (err, res) {
                 if (err) {
-                    console.log('Get SVN log failed!');
+                    console.error('Get SVN log failed!');
                     return;
                 }
 
@@ -71,7 +71,7 @@ module.exports = CreateReactClass({
             })
             .end(function (err, res) {
                 if (err) {
-                    console.log('Get SVN previous file failed!');
+                    console.error('Get SVN previous file failed!');
                     return;
                 }
 
@@ -95,7 +95,7 @@ module.exports = CreateReactClass({
                 this.props.callBack();
 
                 if (err) {
-                    console.log('Get SVN current file failed!');
+                    console.error('Get SVN current file failed!');
                     return;
                 }
 

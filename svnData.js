@@ -82,7 +82,7 @@ module.exports.getFullPath = function (req, res) {
             });
         })
         .catch(function (err) {
-            console.log('svn list err : ' + err);
+            console.error('svn list err : ' + err);
             res.sendStatus(400);
         });
 };
@@ -100,7 +100,7 @@ module.exports.getLog = function (req, res) {
             });
         })
         .catch(function (err) {
-            console.log('getLog err : ' + err);
+            console.error('getLog err : ' + err);
             res.sendStatus(400);
         });
 };
@@ -113,7 +113,7 @@ module.exports.getFile = function (req, res) {
             });
         })
         .catch(function (err) {
-            console.log('getFile err : ' + err);
+            console.error('getFile err : ' + err);
             res.sendStatus(400);
         });
 };
