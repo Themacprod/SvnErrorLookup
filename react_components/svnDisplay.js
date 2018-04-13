@@ -112,8 +112,8 @@ module.exports = CreateReactClass({
 
             if (this.props.filename !== '' &&
                 this.props.revision !== '') {
-                    this.getSvnFullPath();
-                }
+                this.getSvnFullPath();
+            }
         }
 
         return React.createElement(

@@ -10,10 +10,10 @@ module.exports = CreateReactClass({
                 className: classname
             },
             React.createElement(
-            'ul',
-            {
-                className: 'list-group'
-            }, React.createElement('li', {
+                'ul',
+                {
+                    className: 'list-group'
+                }, React.createElement('li', {
                     className: 'list-group-item list-group-item-dark'
                 }, section),
                 React.createElement('li', {
@@ -46,9 +46,9 @@ module.exports = CreateReactClass({
             },
             _.map(logStr, function (log, key) {
                 return React.createElement('div', {
-                        key: key
-                    }, log);
-                })
+                    key: key
+                }, log);
+            })
         );
     },
     render: function () {
