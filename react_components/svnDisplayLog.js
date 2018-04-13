@@ -1,6 +1,6 @@
-var React = require('react');
-var CreateReactClass = require('create-react-class');
-var _ = require('lodash');
+import React from 'react';
+import CreateReactClass from 'create-react-class';
+import _ from 'lodash';
 
 module.exports = CreateReactClass({
     listGroup: function (section, detail, classname) {
@@ -38,7 +38,7 @@ module.exports = CreateReactClass({
         return key >= 3 && key < this.props.log.length - 2;
     },
     logMessage: function () {
-        var logStr = _.filter(this.props.log, (log, key) => this.keyValid(key));
+        const logStr = _.filter(this.props.log, (log, key) => this.keyValid(key));
 
         return React.createElement(
             'div',

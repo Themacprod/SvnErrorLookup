@@ -1,6 +1,6 @@
-var React = require('react');
-var CreateReactClass = require('create-react-class');
-var svnDisplayFile = require('./svnDisplayFile');
+import React from 'react';
+import CreateReactClass from 'create-react-class';
+import svnDisplayFile from './svnDisplayFile';
 
 module.exports = CreateReactClass({
     render: function () {
