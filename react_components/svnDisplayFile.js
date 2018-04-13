@@ -32,7 +32,7 @@ module.exports = CreateReactClass({
                 {
                     className: 'filename'
                 },
-                this.props.filename + '@' + this.props.revision
+                `${this.props.filename}@${this.props.revision}`
             );
         }
 

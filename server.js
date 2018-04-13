@@ -39,7 +39,7 @@ server.get('*', function (req, res) {
 });
 
 server.listen(port, function () {
-    console.error('Server listening on port ' + port + ' ...');
+    console.error(`Server listening on port ${port} ...`);
 });
 
 // Unhandled exception handler.

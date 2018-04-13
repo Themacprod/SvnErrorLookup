@@ -4,8 +4,8 @@ var _ = require('lodash'),
 
 var getSvnBaseCmd = function () {
     var svnCmd = '';
-    svnCmd += '--username ' + process.env.SVN_READ_USER + ' ';
-    svnCmd += '--password ' + process.env.SVN_READ_PASS + ' ';
+    svnCmd += `--username ${process.env.SVN_READ_USER} `;
+    svnCmd += `--password ${process.env.SVN_READ_PASS} `;
     svnCmd += '--non-interactive ';
     return svnCmd;
 };
@@ -22,7 +22,7 @@ var getTextFile = function (filePath, revision) {
 
         xhr.open(
             'GET',
-            String(filePath + '/?p=' + revision),
+            String(`${filePath}/?p=${revision}`),
             true
         );
 
@@ -32,9 +32,10 @@ var getTextFile = function (filePath, revision) {
          * When using setRequestHeader, you must call it after calling open,
          * but before calling send
          */
+        const credential = Buffer.from(`${process.env.SVN_READ_USER}:${process.env.SVN_READ_PASS}`).toString('base64');
         xhr.setRequestHeader(
             'Authorization',
-            'Basic ' + Buffer.from(process.env.SVN_READ_USER + ':' + process.env.SVN_READ_PASS).toString('base64')
+            `Basic ${credential}`
         );
 
         xhr.responseType = 'text';
@@ -61,18 +62,18 @@ var getTextFile = function (filePath, revision) {
 };
 
 module.exports.getFullPath = function (req, res) {
-    const svnRepo = process.env.SVN_REPO + '/ExternalDeviceLayer/Core';
-    var svnCmd = 'svn list ' + svnRepo + ' ';
+    const svnRepo = `${process.env.SVN_REPO} + '/ExternalDeviceLayer/Core`;
+    var svnCmd = `svn list ${svnRepo} `;
 
     svnCmd += getSvnBaseCmd();
-    svnCmd += '--depth infinity --revision ' + req.body.revision;
+    svnCmd += `--depth infinity --revision ${req.body.revision}`;
 
-    promiseSpawn.exec(svnCmd + ' | grep ' + req.body.filename)
+    promiseSpawn.exec(`${svnCmd} | grep ${req.body.filename}`)
         .then(function (result) {
             var files = _.compact(result.stdout.split(/\r?\n/));
 
             files = _.map(files, function (file) {
-                return svnRepo + '/' + file;
+                return `${svnRepo}/${file}`;
             });
 
             res.json({
@@ -82,15 +83,15 @@ module.exports.getFullPath = function (req, res) {
             });
         })
         .catch(function (err) {
-            console.error('svn list err : ' + err);
+            console.error(`svn list err : ${err}`);
             res.sendStatus(400);
         });
 };
 
 module.exports.getLog = function (req, res) {
     var svnCmd = '';
-    svnCmd += 'svn log -r ' + req.body.revision + ':0 --limit 1 ';
-    svnCmd += req.body.filename + ' ';
+    svnCmd += `svn log -r ${req.body.revision}:0 --limit 1 `;
+    svnCmd += `${req.body.filename} `;
     svnCmd += getSvnBaseCmd();
 
     promiseSpawn.exec(svnCmd)
@@ -100,7 +101,7 @@ module.exports.getLog = function (req, res) {
             });
         })
         .catch(function (err) {
-            console.error('getLog err : ' + err);
+            console.error(`getLog err : ${err}`);
             res.sendStatus(400);
         });
 };
@@ -113,7 +114,7 @@ module.exports.getFile = function (req, res) {
             });
         })
         .catch(function (err) {
-            console.error('getFile err : ' + err);
+            console.error(`getFile err : ${err}`);
             res.sendStatus(400);
         });
 };

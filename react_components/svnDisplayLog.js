@@ -62,7 +62,7 @@ module.exports = CreateReactClass({
                 {
                     className: 'svnLog'
                 },
-                'Last changes on ' + this.props.filename + ' since revision ' + this.props.curRevision + ' :'
+                `Last changes on ${this.props.filename} since revision ${this.props.curRevision} :`
             ),
             this.logDetail(),
             this.logMessage()
