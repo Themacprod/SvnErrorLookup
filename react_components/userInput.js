@@ -2,7 +2,7 @@ var React = require('react'),
     CreateReactClass = require('create-react-class');
 
 module.exports = CreateReactClass({
-    handleInputChange: function(e) {
+    handleInputChange: function (e) {
         const codeLineStr = (/\(\d+(?!\d)\)/).exec(e.target.value);
         const svnCommitStr = (/\[\d+(?!\d)\]/).exec(e.target.value);
         const fileStr = (/\w+.cpp\b/).exec(e.target.value);
@@ -14,7 +14,7 @@ module.exports = CreateReactClass({
             this.props.callback(svnCommit, fileStr[0], codeLine);
         }
     },
-    render: function() {
+    render: function () {
         return React.createElement(
             'div',
             {

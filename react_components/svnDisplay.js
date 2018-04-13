@@ -6,7 +6,7 @@ var React = require('react'),
     svnDisplayFile = require('./svnDisplayFile');
 
 module.exports = CreateReactClass({
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             log: [],
             filePrev: [],
@@ -15,14 +15,14 @@ module.exports = CreateReactClass({
             revPrev: 0
         };
     },
-    getSvnFullPath: function() {
+    getSvnFullPath: function () {
         request
             .post('/api/getSvnFullPath/')
             .send({
                 filename: this.props.filename,
                 revision: this.props.revision
             })
-            .end(function(err, res) {
+            .end(function (err, res) {
                 if (err) {
                     console.log('Get SVN full path failed!');
                     return;
@@ -37,14 +37,14 @@ module.exports = CreateReactClass({
                 }
             }.bind(this));
     },
-    getSvnLog: function(filePath) {
+    getSvnLog: function (filePath) {
         request
             .post('/api/getSvnLog/')
             .send({
                 filename: filePath,
                 revision: this.props.revision
             })
-            .end(function(err, res) {
+            .end(function (err, res) {
                 if (err) {
                     console.log('Get SVN log failed!');
                     return;
@@ -62,14 +62,14 @@ module.exports = CreateReactClass({
                 }
             }.bind(this));
     },
-    getSvnFilePrev: function(filePath, revision) {
+    getSvnFilePrev: function (filePath, revision) {
         request
             .post('/api/getSvnFile/')
             .send({
                 filename: filePath,
                 revision: revision
             })
-            .end(function(err, res) {
+            .end(function (err, res) {
                 if (err) {
                     console.log('Get SVN previous file failed!');
                     return;
@@ -84,14 +84,14 @@ module.exports = CreateReactClass({
                 }
             }.bind(this));
     },
-    getSvnFileCur: function(filePath) {
+    getSvnFileCur: function (filePath) {
         request
             .post('/api/getSvnFile/')
             .send({
                 filename: filePath,
                 revision: this.props.revision
             })
-            .end(function(err, res) {
+            .end(function (err, res) {
                 this.props.callBack();
 
                 if (err) {
@@ -106,7 +106,7 @@ module.exports = CreateReactClass({
                 }
             }.bind(this));
     },
-    render: function() {
+    render: function () {
         if (this.props.filename !== this.oldFilename) {
             this.oldFilename = this.props.filename;
 

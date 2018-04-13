@@ -34,16 +34,16 @@ server.post('/api/getSvnLog', svnData.getLog);
 
 server.post('/api/getSvnFile', svnData.getFile);
 
-server.get('*', function(req, res) {
+server.get('*', function (req, res) {
 	res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-server.listen(port, function() {
+server.listen(port, function () {
 	console.log('Server listening on port ' + port + ' ...');
 });
 
 // Unhandled exception handler.
-server.use(function(err, req, res) {
+server.use(function (err, req, res) {
 	console.log(err);
 	res.sendStatus(500);
 });

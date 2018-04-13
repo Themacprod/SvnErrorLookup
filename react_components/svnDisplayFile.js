@@ -4,7 +4,7 @@ var React = require('react'),
     CodeMirror = require('react-codemirror2').UnControlled;
 
 module.exports = CreateReactClass({
-    genFile: function(file, line) {
+    genFile: function (file, line) {
         if (file.length > 2 && line) {
             return React.createElement(CodeMirror, {
                 value: _.flattenDeep(file),
@@ -14,7 +14,7 @@ module.exports = CreateReactClass({
                     lineNumbers: true,
                     readOnly: true
                 },
-                editorDidMount: function(editor) {
+                editorDidMount: function (editor) {
                     editor.setCursor({
                         line: line,
                         ch: 0
@@ -25,7 +25,7 @@ module.exports = CreateReactClass({
 
         return null;
     },
-    genTitle: function() {
+    genTitle: function () {
         if (this.props.filename && this.props.revision) {
             return React.createElement(
                 'em',
@@ -38,7 +38,7 @@ module.exports = CreateReactClass({
 
         return null;
     },
-    render: function() {
+    render: function () {
         return React.createElement(
             'div',
             {

@@ -5,7 +5,7 @@ var React = require('react'),
     svnDisplay = require('./svnDisplay');
 
 module.exports = CreateReactClass({
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             revision: '',
             filename: '',
@@ -13,7 +13,7 @@ module.exports = CreateReactClass({
             loading: false
         };
     },
-    inputCallback: function(revision, filename, line) {
+    inputCallback: function (revision, filename, line) {
         this.setState({
             revision: revision,
             filename: filename,
@@ -21,12 +21,12 @@ module.exports = CreateReactClass({
             loading: true
         });
     },
-    svnQueryCallback: function() {
+    svnQueryCallback: function () {
         this.setState({
             loading: false
         });
     },
-    createLoading: function() {
+    createLoading: function () {
         if (this.state.loading === true) {
             return React.createElement('div', {
                 className: 'loading'
@@ -53,7 +53,7 @@ module.exports = CreateReactClass({
 
         return null;
     },
-    render: function() {
+    render: function () {
         return React.createElement(
             'div',
             {

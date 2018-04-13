@@ -3,7 +3,7 @@ var React = require('react'),
     _ = require('lodash');
 
 module.exports = CreateReactClass({
-    listGroup: function(section, detail, classname) {
+    listGroup: function (section, detail, classname) {
         return React.createElement(
             'div',
             {
@@ -22,7 +22,7 @@ module.exports = CreateReactClass({
             )
         );
     },
-    logDetail: function() {
+    logDetail: function () {
         const lineWords = _.words(this.props.log[1]);
         return React.createElement(
             'div',
@@ -34,8 +34,8 @@ module.exports = CreateReactClass({
             this.listGroup('Message', this.props.log[3] || '', 'svnlogbig')
         );
     },
-    logMessage: function() {
-        var logStr = _.filter(this.props.log, function(log, key) {
+    logMessage: function () {
+        var logStr = _.filter(this.props.log, function (log, key) {
             return key >= 3 && key < this.props.log.length - 2;
         }.bind(this));
 
@@ -44,14 +44,14 @@ module.exports = CreateReactClass({
             {
                 className: 'message'
             },
-            _.map(logStr, function(log, key) {
+            _.map(logStr, function (log, key) {
                 return React.createElement('div', {
                         key: key
                     }, log);
                 })
         );
     },
-    render: function() {
+    render: function () {
         return React.createElement(
             'div',
             {

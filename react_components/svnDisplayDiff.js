@@ -3,7 +3,7 @@ var React = require('react'),
     svnDisplayFile = require('./svnDisplayFile');
 
 module.exports = CreateReactClass({
-    render: function() {
+    render: function () {
         return React.createElement(
             'div',
             {

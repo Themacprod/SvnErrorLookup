@@ -5,7 +5,7 @@ var React = require('react'),
     ReactDOM = require('react-dom');
 
 var Boot = CreateReactClass({
-    render: function() {
+    render: function () {
         return React.createElement(require('./app'));
     }
 });

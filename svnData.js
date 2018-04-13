@@ -2,7 +2,7 @@ var _ = require('lodash'),
     promiseSpawn = require('child-process-promise'),
     XMLHttpRequest = require('xhr2');
 
-var getSvnBaseCmd = function() {
+var getSvnBaseCmd = function () {
     var svnCmd = '';
     svnCmd += '--username ' + process.env.SVN_READ_USER + ' ';
     svnCmd += '--password ' + process.env.SVN_READ_PASS + ' ';
@@ -10,7 +10,7 @@ var getSvnBaseCmd = function() {
     return svnCmd;
 };
 
-module.exports.getFullPath = function(req, res) {
+module.exports.getFullPath = function (req, res) {
     const svnRepo = process.env.SVN_REPO + '/ExternalDeviceLayer/Core';
     var svnCmd = 'svn list ' + svnRepo + ' ';
 
@@ -18,14 +18,14 @@ module.exports.getFullPath = function(req, res) {
     svnCmd += '--depth infinity --revision ' + req.body.revision;
 
     promiseSpawn.exec(svnCmd + ' | grep ' + req.body.filename)
-    .then(function(result) {
+    .then(function (result) {
         var files = _.compact(result.stdout.split(/\r?\n/));
 
-        files = _.map(files, function(file) {
+        files = _.map(files, function (file) {
             return svnRepo + '/' + file;
         });
 
-        var fileFilter = _.filter(files, function(file) {
+        var fileFilter = _.filter(files, function (file) {
             return file.indexOf('IocClientUm') === -1;
         });
 
@@ -33,7 +33,7 @@ module.exports.getFullPath = function(req, res) {
             filePath: fileFilter
         });
     })
-    .catch(function(err) {
+    .catch(function (err) {
         console.log('svn list err : ' + err);
         res.sendStatus(400);
     });
@@ -45,8 +45,8 @@ module.exports.getFullPath = function(req, res) {
  * @param {int} revision SVN revision of the file to fetch.
  * @returns {file} Found file.
  */
-var getTextFile = function(filePath, revision) {
-    return new Promise(function(resolve, reject) {
+var getTextFile = function (filePath, revision) {
+    return new Promise(function (resolve, reject) {
         var xhr = new XMLHttpRequest();
 
         xhr.open(
@@ -68,20 +68,20 @@ var getTextFile = function(filePath, revision) {
 
         xhr.responseType = 'text';
 
-        xhr.onload = function() {
+        xhr.onload = function () {
             if (this.status >= 200 && this.status < 300) {
                 resolve(xhr.response);
             } else {
                 reject(xhr.statusText);
             }
         };
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             reject(xhr.statusText);
         };
-        xhr.ontimeout = function() {
+        xhr.ontimeout = function () {
             reject(xhr.statusText);
         };
-        xhr.onabort = function() {
+        xhr.onabort = function () {
             reject(xhr.statusText);
         };
 
@@ -97,8 +97,8 @@ var getTextFile = function(filePath, revision) {
  * @param {int} line Line number of the assert in the file.
  * @returns {file} Found file.
  */
-var getValidFile = function(files, revision, line) {
-    return _.filter(files, function(file) {
+var getValidFile = function (files, revision, line) {
+    return _.filter(files, function (file) {
         const fileContent = getTextFile(file, revision);
         const lines = fileContent.split(/\r?\n/);
         // Seach for assert in the specified line.
@@ -110,32 +110,32 @@ var getValidFile = function(files, revision, line) {
     });
 };
 
-module.exports.getLog = function(req, res) {
+module.exports.getLog = function (req, res) {
     var svnCmd = '';
     svnCmd += 'svn log -r ' + req.body.revision + ':0 --limit 1 ';
     svnCmd += req.body.filename + ' ';
     svnCmd += getSvnBaseCmd();
 
     promiseSpawn.exec(svnCmd)
-    .then(function(result) {
+    .then(function (result) {
         res.json({
             log: result.stdout.split(/\r?\n/)
         });
     })
-    .catch(function(err) {
+    .catch(function (err) {
         console.log('getLog err : ' + err);
         res.sendStatus(400);
     });
 };
 
-module.exports.getFile = function(req, res) {
+module.exports.getFile = function (req, res) {
     getTextFile(req.body.filename, req.body.revision)
-    .then(function(result) {
+    .then(function (result) {
         res.json({
             file: result.split(/\r?\n/)
         });
     })
-    .catch(function(err) {
+    .catch(function (err) {
         console.log('getFile err : ' + err);
         res.sendStatus(400);
     });

@@ -52,7 +52,6 @@
 		"quote-props": ["error", "consistent-as-needed"],
 		"sort-keys": "off",
 		"sort-vars": "off",
-		"space-before-function-paren": ["error", "never"],
 		"unicode-bom": ["error", "never"],
 		"vars-on-top": "off"
 	}

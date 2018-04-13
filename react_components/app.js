@@ -5,11 +5,11 @@ var React = require('react'),
     main = require('./main');
 
 module.exports = CreateReactClass({
-    componentDidMount: function() {
+    componentDidMount: function () {
         global.jQuery = require('jquery');
         require('codemirror/mode/clike/clike');
     },
-    render: function() {
+    render: function () {
         return React.createElement(
             'div',
             {
