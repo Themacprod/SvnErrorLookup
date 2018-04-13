@@ -1,6 +1,6 @@
-var _ = require('lodash'),
-    promiseSpawn = require('child-process-promise'),
-    XMLHttpRequest = require('xhr2');
+var _ = require('lodash');
+var promiseSpawn = require('child-process-promise');
+var XMLHttpRequest = require('xhr2');
 
 var getSvnBaseCmd = function () {
     var svnCmd = '';

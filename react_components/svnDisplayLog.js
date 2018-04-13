@@ -1,6 +1,6 @@
-var React = require('react'),
-    CreateReactClass = require('create-react-class'),
-    _ = require('lodash');
+var React = require('react');
+var CreateReactClass = require('create-react-class');
+var _ = require('lodash');
 
 module.exports = CreateReactClass({
     listGroup: function (section, detail, classname) {

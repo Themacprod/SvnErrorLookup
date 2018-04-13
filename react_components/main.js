@@ -1,8 +1,8 @@
-var React = require('react'),
-    CreateReactClass = require('create-react-class'),
-    Spinner = require('react-spinners'),
-    userInput = require('./userInput'),
-    svnDisplay = require('./svnDisplay');
+var React = require('react');
+var CreateReactClass = require('create-react-class');
+var Spinner = require('react-spinners');
+var userInput = require('./userInput');
+var svnDisplay = require('./svnDisplay');
 
 module.exports = CreateReactClass({
     getInitialState: function () {

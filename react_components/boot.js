@@ -1,8 +1,8 @@
 /* global document:true */
 
-var React = require('react'),
-    CreateReactClass = require('create-react-class'),
-    ReactDOM = require('react-dom');
+var React = require('react');
+var CreateReactClass = require('create-react-class');
+var ReactDOM = require('react-dom');
 
 var Boot = CreateReactClass({
     render: function () {

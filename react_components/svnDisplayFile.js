@@ -1,7 +1,7 @@
-var React = require('react'),
-    CreateReactClass = require('create-react-class'),
-    _ = require('lodash'),
-    CodeMirror = require('react-codemirror2').UnControlled;
+var React = require('react');
+var CreateReactClass = require('create-react-class');
+var _ = require('lodash');
+var CodeMirror = require('react-codemirror2').UnControlled;
 
 module.exports = CreateReactClass({
     genFile: function (file, line) {
