@@ -24,7 +24,6 @@
 		"indent": ["error", 4],
 		"linebreak-style": ["error", "windows"],
 		"no-console": ["error", { "allow": ["warn", "error"] }],
-		"no-var": "off",
 		"object-shorthand": "off"
 	}
 }

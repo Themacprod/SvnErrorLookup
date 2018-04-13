@@ -1,10 +1,10 @@
 /* global document:true */
 
-var React = require('react');
-var CreateReactClass = require('create-react-class');
-var ReactDOM = require('react-dom');
+const React = require('react');
+const CreateReactClass = require('create-react-class');
+const ReactDOM = require('react-dom');
 
-var Boot = CreateReactClass({
+const Boot = CreateReactClass({
     render: function () {
         return React.createElement(require('./app'));
     }

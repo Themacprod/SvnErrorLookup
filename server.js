@@ -1,13 +1,13 @@
-var path = require('path');
-var express = require('express');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var favicon = require('serve-favicon');
-var svnData = require('./svnData');
+const path = require('path');
+const express = require('express');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const favicon = require('serve-favicon');
+const svnData = require('./svnData');
 
-var server = express();
-var cacheMaxAge = process.env.NODE_ENV === 'development' ? 0 : 3600000;
-var port = process.env.PORT || 5000;
+const server = express();
+const cacheMaxAge = process.env.NODE_ENV === 'development' ? 0 : 3600000;
+const port = process.env.PORT || 5000;
 
 // Server setup.
 

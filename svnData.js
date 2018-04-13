@@ -1,9 +1,9 @@
-var _ = require('lodash');
-var promiseSpawn = require('child-process-promise');
-var XMLHttpRequest = require('xhr2');
+const _ = require('lodash');
+const promiseSpawn = require('child-process-promise');
+const XMLHttpRequest = require('xhr2');
 
-var getSvnBaseCmd = function () {
-    var svnCmd = '';
+const getSvnBaseCmd = function () {
+    let svnCmd = '';
     svnCmd += `--username ${process.env.SVN_READ_USER} `;
     svnCmd += `--password ${process.env.SVN_READ_PASS} `;
     svnCmd += '--non-interactive ';
@@ -16,9 +16,9 @@ var getSvnBaseCmd = function () {
  * @param {int} revision SVN revision of the file to fetch.
  * @returns {file} Found file.
  */
-var getTextFile = function (filePath, revision) {
+const getTextFile = function (filePath, revision) {
     return new Promise((resolve, reject) => {
-        var xhr = new XMLHttpRequest();
+        const xhr = new XMLHttpRequest();
 
         xhr.open(
             'GET',
@@ -63,14 +63,14 @@ var getTextFile = function (filePath, revision) {
 
 module.exports.getFullPath = function getFullPath(req, res) {
     const svnRepo = `${process.env.SVN_REPO}/ExternalDeviceLayer/Core`;
-    var svnCmd = `svn list ${svnRepo} `;
+    let svnCmd = `svn list ${svnRepo} `;
 
     svnCmd += getSvnBaseCmd();
     svnCmd += `--depth infinity --revision ${req.body.revision}`;
 
     promiseSpawn.exec(`${svnCmd} | grep ${req.body.filename}`)
         .then((result) => {
-            var files = _.compact(result.stdout.split(/\r?\n/));
+            let files = _.compact(result.stdout.split(/\r?\n/));
 
             files = _.map(files, file => `${svnRepo}/${file}`);
 
@@ -85,7 +85,7 @@ module.exports.getFullPath = function getFullPath(req, res) {
 };
 
 module.exports.getLog = function getLog(req, res) {
-    var svnCmd = '';
+    let svnCmd = '';
     svnCmd += `svn log -r ${req.body.revision}:0 --limit 1 `;
     svnCmd += `${req.body.filename} `;
     svnCmd += getSvnBaseCmd();

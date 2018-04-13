@@ -1,9 +1,9 @@
-var React = require('react');
-var CreateReactClass = require('create-react-class');
-var request = require('superagent');
-var _ = require('lodash');
-var svnLog = require('./svnDisplayLog');
-var svnDisplayFile = require('./svnDisplayFile');
+const React = require('react');
+const CreateReactClass = require('create-react-class');
+const request = require('superagent');
+const _ = require('lodash');
+const svnLog = require('./svnDisplayLog');
+const svnDisplayFile = require('./svnDisplayFile');
 
 module.exports = CreateReactClass({
     getInitialState: function () {
