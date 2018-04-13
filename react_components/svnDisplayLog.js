@@ -34,18 +34,19 @@ module.exports = CreateReactClass({
             this.listGroup('Message', this.props.log[3] || '', 'svnlogbig')
         );
     },
+    keyValid: function (key) {
+        return key >= 3 && key < this.props.log.length - 2;
+    },
     logMessage: function () {
-        var logStr = _.filter(this.props.log, function filter(log, key) {
-            return key >= 3 && key < this.props.log.length - 2;
-        }.bind(this));
+        var logStr = _.filter(this.props.log, (log, key) => this.keyValid(key));
 
         return React.createElement(
             'div',
             {
                 className: 'message'
             },
-            _.map(logStr, function map(log, key) {
-                return React.createElement('div', {
+            _.map(logStr, (log, key) => {
+                React.createElement('div', {
                     key: key
                 }, log);
             })

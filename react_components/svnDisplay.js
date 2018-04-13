@@ -22,7 +22,7 @@ module.exports = CreateReactClass({
                 filename: this.props.filename,
                 revision: this.props.revision
             })
-            .end(function reponse(err, res) {
+            .end((err, res) => {
                 if (err) {
                     console.error('Get SVN full path failed!');
                     return;
@@ -35,7 +35,7 @@ module.exports = CreateReactClass({
 
                     this.getSvnLog(res.body.filePath);
                 }
-            }.bind(this));
+            });
     },
     getSvnLog: function (filePath) {
         request
@@ -44,7 +44,7 @@ module.exports = CreateReactClass({
                 filename: filePath,
                 revision: this.props.revision
             })
-            .end(function reponse(err, res) {
+            .end((err, res) => {
                 if (err) {
                     console.error('Get SVN log failed!');
                     return;
@@ -60,7 +60,7 @@ module.exports = CreateReactClass({
 
                     this.getSvnFilePrev(filePath, prevRevision[1]);
                 }
-            }.bind(this));
+            });
     },
     getSvnFilePrev: function (filePath, revision) {
         request
@@ -69,7 +69,7 @@ module.exports = CreateReactClass({
                 filename: filePath,
                 revision: revision
             })
-            .end(function reponse(err, res) {
+            .end((err, res) => {
                 if (err) {
                     console.error('Get SVN previous file failed!');
                     return;
@@ -82,7 +82,7 @@ module.exports = CreateReactClass({
 
                     this.getSvnFileCur(filePath);
                 }
-            }.bind(this));
+            });
     },
     getSvnFileCur: function (filePath) {
         request
@@ -91,7 +91,7 @@ module.exports = CreateReactClass({
                 filename: filePath,
                 revision: this.props.revision
             })
-            .end(function reponse(err, res) {
+            .end((err, res) => {
                 this.props.callBack();
 
                 if (err) {
@@ -104,7 +104,7 @@ module.exports = CreateReactClass({
                         fileCur: res.body.file
                     });
                 }
-            }.bind(this));
+            });
     },
     render: function () {
         if (this.props.filename !== this.oldFilename) {

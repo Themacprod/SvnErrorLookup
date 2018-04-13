@@ -26,7 +26,6 @@
 		"no-console": ["error", { "allow": ["warn", "error"] }],
 		"no-var": "off",
 		"object-shorthand": "off",
-		"one-var": "off",
-		"prefer-arrow-callback": "off"
+		"one-var": "off"
 	}
 }

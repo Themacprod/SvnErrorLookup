@@ -17,7 +17,7 @@ var getSvnBaseCmd = function () {
  * @returns {file} Found file.
  */
 var getTextFile = function (filePath, revision) {
-    return new Promise(function promise(resolve, reject) {
+    return new Promise((resolve, reject) => {
         var xhr = new XMLHttpRequest();
 
         xhr.open(
@@ -69,20 +69,16 @@ module.exports.getFullPath = function getFullPath(req, res) {
     svnCmd += `--depth infinity --revision ${req.body.revision}`;
 
     promiseSpawn.exec(`${svnCmd} | grep ${req.body.filename}`)
-        .then(function reponse(result) {
+        .then((result) => {
             var files = _.compact(result.stdout.split(/\r?\n/));
 
-            files = _.map(files, function map(file) {
-                return `${svnRepo}/${file}`;
-            });
+            files = _.map(files, file => `${svnRepo}/${file}`);
 
             res.json({
-                filePath: _.filter(files, function filter(file) {
-                    return file.indexOf('IocClientUm') === -1;
-                })
+                filePath: _.filter(files, file => file.indexOf('IocClientUm') === -1)
             });
         })
-        .catch(function handleError(err) {
+        .catch((err) => {
             console.error(`svn list err : ${err}`);
             res.sendStatus(400);
         });
@@ -95,12 +91,12 @@ module.exports.getLog = function getLog(req, res) {
     svnCmd += getSvnBaseCmd();
 
     promiseSpawn.exec(svnCmd)
-        .then(function response(result) {
+        .then((result) => {
             res.json({
                 log: result.stdout.split(/\r?\n/)
             });
         })
-        .catch(function handleError(err) {
+        .catch((err) => {
             console.error(`getLog err : ${err}`);
             res.sendStatus(400);
         });
@@ -108,12 +104,12 @@ module.exports.getLog = function getLog(req, res) {
 
 module.exports.getFile = function getFile(req, res) {
     getTextFile(req.body.filename, req.body.revision)
-        .then(function reponse(result) {
+        .then((result) => {
             res.json({
                 file: result.split(/\r?\n/)
             });
         })
-        .catch(function handleError(err) {
+        .catch((err) => {
             console.error(`getFile err : ${err}`);
             res.sendStatus(400);
         });
