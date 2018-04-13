@@ -19,12 +19,7 @@
 			"exports": "always",
 			"functions": "ignore"
 		}],
-		"callback-return": ["off"],
-		"dot-location": ["error", "property"],
-		"func-names": ["error", "never"],
-		"generator-star-spacing": ["error", "neither"],
 		"global-require": "off",
-		"id-length": "off",
 		"indent": ["off", "tab"],
 		"linebreak-style": "off",
 		"max-len": "off",
