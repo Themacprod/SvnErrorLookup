@@ -22,7 +22,7 @@ module.exports = CreateReactClass({
                 filename: this.props.filename,
                 revision: this.props.revision
             })
-            .end(function (err, res) {
+            .end(function reponse(err, res) {
                 if (err) {
                     console.error('Get SVN full path failed!');
                     return;
@@ -44,7 +44,7 @@ module.exports = CreateReactClass({
                 filename: filePath,
                 revision: this.props.revision
             })
-            .end(function (err, res) {
+            .end(function reponse(err, res) {
                 if (err) {
                     console.error('Get SVN log failed!');
                     return;
@@ -69,7 +69,7 @@ module.exports = CreateReactClass({
                 filename: filePath,
                 revision: revision
             })
-            .end(function (err, res) {
+            .end(function reponse(err, res) {
                 if (err) {
                     console.error('Get SVN previous file failed!');
                     return;
@@ -91,7 +91,7 @@ module.exports = CreateReactClass({
                 filename: filePath,
                 revision: this.props.revision
             })
-            .end(function (err, res) {
+            .end(function reponse(err, res) {
                 this.props.callBack();
 
                 if (err) {

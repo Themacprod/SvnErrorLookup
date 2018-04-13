@@ -35,7 +35,7 @@ module.exports = CreateReactClass({
         );
     },
     logMessage: function () {
-        var logStr = _.filter(this.props.log, function (log, key) {
+        var logStr = _.filter(this.props.log, function filter(log, key) {
             return key >= 3 && key < this.props.log.length - 2;
         }.bind(this));
 
@@ -44,7 +44,7 @@ module.exports = CreateReactClass({
             {
                 className: 'message'
             },
-            _.map(logStr, function (log, key) {
+            _.map(logStr, function map(log, key) {
                 return React.createElement('div', {
                     key: key
                 }, log);

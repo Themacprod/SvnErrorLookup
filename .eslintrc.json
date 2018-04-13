@@ -19,6 +19,7 @@
 			"exports": "always",
 			"functions": "ignore"
 		}],
+		"func-names": ["error", "as-needed"],
 		"global-require": "off",
 		"indent": ["error", 4],
 		"linebreak-style": ["error", "windows"],

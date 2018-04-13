@@ -17,7 +17,7 @@ var getSvnBaseCmd = function () {
  * @returns {file} Found file.
  */
 var getTextFile = function (filePath, revision) {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function promise(resolve, reject) {
         var xhr = new XMLHttpRequest();
 
         xhr.open(
@@ -40,20 +40,20 @@ var getTextFile = function (filePath, revision) {
 
         xhr.responseType = 'text';
 
-        xhr.onload = function () {
+        xhr.onload = function onLoad() {
             if (this.status >= 200 && this.status < 300) {
                 resolve(xhr.response);
             } else {
                 reject(xhr.statusText);
             }
         };
-        xhr.onerror = function () {
+        xhr.onerror = function onError() {
             reject(xhr.statusText);
         };
-        xhr.ontimeout = function () {
+        xhr.ontimeout = function onTimeout() {
             reject(xhr.statusText);
         };
-        xhr.onabort = function () {
+        xhr.onabort = function onAbort() {
             reject(xhr.statusText);
         };
 
@@ -61,7 +61,7 @@ var getTextFile = function (filePath, revision) {
     });
 };
 
-module.exports.getFullPath = function (req, res) {
+module.exports.getFullPath = function getFullPath(req, res) {
     const svnRepo = `${process.env.SVN_REPO} + '/ExternalDeviceLayer/Core`;
     var svnCmd = `svn list ${svnRepo} `;
 
@@ -69,51 +69,51 @@ module.exports.getFullPath = function (req, res) {
     svnCmd += `--depth infinity --revision ${req.body.revision}`;
 
     promiseSpawn.exec(`${svnCmd} | grep ${req.body.filename}`)
-        .then(function (result) {
+        .then(function reponse(result) {
             var files = _.compact(result.stdout.split(/\r?\n/));
 
-            files = _.map(files, function (file) {
+            files = _.map(files, function map(file) {
                 return `${svnRepo}/${file}`;
             });
 
             res.json({
-                filePath: _.filter(files, function (file) {
+                filePath: _.filter(files, function filter(file) {
                     return file.indexOf('IocClientUm') === -1;
                 })
             });
         })
-        .catch(function (err) {
+        .catch(function handleError(err) {
             console.error(`svn list err : ${err}`);
             res.sendStatus(400);
         });
 };
 
-module.exports.getLog = function (req, res) {
+module.exports.getLog = function getLog(req, res) {
     var svnCmd = '';
     svnCmd += `svn log -r ${req.body.revision}:0 --limit 1 `;
     svnCmd += `${req.body.filename} `;
     svnCmd += getSvnBaseCmd();
 
     promiseSpawn.exec(svnCmd)
-        .then(function (result) {
+        .then(function response(result) {
             res.json({
                 log: result.stdout.split(/\r?\n/)
             });
         })
-        .catch(function (err) {
+        .catch(function handleError(err) {
             console.error(`getLog err : ${err}`);
             res.sendStatus(400);
         });
 };
 
-module.exports.getFile = function (req, res) {
+module.exports.getFile = function getFile(req, res) {
     getTextFile(req.body.filename, req.body.revision)
-        .then(function (result) {
+        .then(function reponse(result) {
             res.json({
                 file: result.split(/\r?\n/)
             });
         })
-        .catch(function (err) {
+        .catch(function handleError(err) {
             console.error(`getFile err : ${err}`);
             res.sendStatus(400);
         });
