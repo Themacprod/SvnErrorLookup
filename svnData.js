@@ -10,35 +10,6 @@ var getSvnBaseCmd = function () {
     return svnCmd;
 };
 
-module.exports.getFullPath = function (req, res) {
-    const svnRepo = process.env.SVN_REPO + '/ExternalDeviceLayer/Core';
-    var svnCmd = 'svn list ' + svnRepo + ' ';
-
-    svnCmd += getSvnBaseCmd();
-    svnCmd += '--depth infinity --revision ' + req.body.revision;
-
-    promiseSpawn.exec(svnCmd + ' | grep ' + req.body.filename)
-    .then(function (result) {
-        var files = _.compact(result.stdout.split(/\r?\n/));
-
-        files = _.map(files, function (file) {
-            return svnRepo + '/' + file;
-        });
-
-        var fileFilter = _.filter(files, function (file) {
-            return file.indexOf('IocClientUm') === -1;
-        });
-
-        res.json({
-            filePath: fileFilter
-        });
-    })
-    .catch(function (err) {
-        console.log('svn list err : ' + err);
-        res.sendStatus(400);
-    });
-};
-
 /**
  * Return text file from SVN server from the passed in file input and at the specified SVN revision
  * @param {string} filePath SVN file path of the file to get.
@@ -89,24 +60,30 @@ var getTextFile = function (filePath, revision) {
     });
 };
 
-/**
- * Parse the array of file and return file(s) with an assert command in the specified line.
- * For exemple with LDevices.cpp file, this name is used in 2 places.
- * @param {array} files Array of SVN file path to check.
- * @param {int} revision SVN revision of the file to fetch.
- * @param {int} line Line number of the assert in the file.
- * @returns {file} Found file.
- */
-var getValidFile = function (files, revision, line) {
-    return _.filter(files, function (file) {
-        const fileContent = getTextFile(file, revision);
-        const lines = fileContent.split(/\r?\n/);
-        // Seach for assert in the specified line.
-        return (
-            [
-                'ASSERT',
-                'ABORT',
-            ].indexOf(lines[line]) >= 0);
+module.exports.getFullPath = function (req, res) {
+    const svnRepo = process.env.SVN_REPO + '/ExternalDeviceLayer/Core';
+    var svnCmd = 'svn list ' + svnRepo + ' ';
+
+    svnCmd += getSvnBaseCmd();
+    svnCmd += '--depth infinity --revision ' + req.body.revision;
+
+    promiseSpawn.exec(svnCmd + ' | grep ' + req.body.filename)
+    .then(function (result) {
+        var files = _.compact(result.stdout.split(/\r?\n/));
+
+        files = _.map(files, function (file) {
+            return svnRepo + '/' + file;
+        });
+
+        res.json({
+            filePath: _.filter(files, function (file) {
+                return file.indexOf('IocClientUm') === -1;
+            })
+        });
+    })
+    .catch(function (err) {
+        console.log('svn list err : ' + err);
+        res.sendStatus(400);
     });
 };
 
