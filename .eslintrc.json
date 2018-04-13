@@ -22,7 +22,6 @@
 		"global-require": "off",
 		"indent": ["off", "tab"],
 		"linebreak-style": "off",
-		"max-len": "off",
 		"no-console": "off",
 		"no-tabs": "off",
 		"no-var": "off",
