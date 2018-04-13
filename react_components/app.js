@@ -2,12 +2,14 @@
 
 const React = require('react');
 const CreateReactClass = require('create-react-class');
+const JQuery = require('jquery');
 const main = require('./main');
+const cLike = require('codemirror/mode/clike/clike');
 
 module.exports = CreateReactClass({
     componentDidMount: function () {
-        global.jQuery = require('jquery');
-        require('codemirror/mode/clike/clike');
+        global.jQuery = JQuery;
+        global.cLike = cLike;
     },
     render: function () {
         return React.createElement(

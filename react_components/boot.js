@@ -3,10 +3,11 @@
 const React = require('react');
 const CreateReactClass = require('create-react-class');
 const ReactDOM = require('react-dom');
+const app = require('./app');
 
 const Boot = CreateReactClass({
     render: function () {
-        return React.createElement(require('./app'));
+        return React.createElement(app);
     }
 });
 
