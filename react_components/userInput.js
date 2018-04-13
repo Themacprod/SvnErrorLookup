@@ -1,5 +1,5 @@
-import React from 'react';
-import CreateReactClass from 'create-react-class';
+var React = require('react');
+var CreateReactClass = require('create-react-class');
 
 module.exports = CreateReactClass({
     handleInputChange: function (e) {

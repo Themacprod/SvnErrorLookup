@@ -15,7 +15,7 @@
 		"comma-dangle": ["error", {
 			"arrays": "always",
 			"objects": "never",
-			"imports": "never",
+			"imports": "always",
 			"exports": "always",
 			"functions": "ignore"
 		}],
@@ -24,6 +24,7 @@
 		"indent": ["error", 4],
 		"linebreak-style": ["error", "windows"],
 		"no-console": ["error", { "allow": ["warn", "error"] }],
+		"no-var": "off",
 		"object-shorthand": "off"
 	}
 }

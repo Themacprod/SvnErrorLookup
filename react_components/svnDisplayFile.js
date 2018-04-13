@@ -1,7 +1,7 @@
-import React from 'react';
-import CreateReactClass from 'create-react-class';
-import _ from 'lodash';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
+var React = require('react');
+var CreateReactClass = require('create-react-class');
+var _ = require('lodash');
+var CodeMirror = require('react-codemirror2').UnControlled;
 
 module.exports = CreateReactClass({
     genFile: function (file, line) {

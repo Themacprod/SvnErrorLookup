@@ -1,8 +1,8 @@
-import React from 'react';
-import CreateReactClass from 'create-react-class';
-import Spinner from 'react-spinners';
-import userInput from './userInput';
-import svnDisplay from './svnDisplay';
+var React = require('react');
+var CreateReactClass = require('create-react-class');
+var Spinner = require('react-spinners');
+var userInput = require('./userInput');
+var svnDisplay = require('./svnDisplay');
 
 module.exports = CreateReactClass({
     getInitialState: function () {

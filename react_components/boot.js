@@ -1,10 +1,10 @@
 /* global document:true */
 
-import React from 'react';
-import CreateReactClass from 'create-react-class';
-import ReactDOM from 'react-dom';
+var React = require('react');
+var CreateReactClass = require('create-react-class');
+var ReactDOM = require('react-dom');
 
-const Boot = CreateReactClass({
+var Boot = CreateReactClass({
     render: function () {
         return React.createElement(require('./app'));
     }

@@ -1,8 +1,8 @@
 /* global module:true */
 
-import React from 'react';
-import CreateReactClass from 'create-react-class';
-import main from './main';
+var React = require('react');
+var CreateReactClass = require('create-react-class');
+var main = require('./main');
 
 module.exports = CreateReactClass({
     componentDidMount: function () {
