@@ -22,7 +22,7 @@ var getTextFile = function (filePath, revision) {
 
         xhr.open(
             'GET',
-            String(`${filePath}/?p=${revision}`),
+            `${filePath}/?p=${revision}`,
             true
         );
 
@@ -62,7 +62,7 @@ var getTextFile = function (filePath, revision) {
 };
 
 module.exports.getFullPath = function getFullPath(req, res) {
-    const svnRepo = `${process.env.SVN_REPO} + '/ExternalDeviceLayer/Core`;
+    const svnRepo = `${process.env.SVN_REPO}/ExternalDeviceLayer/Core`;
     var svnCmd = `svn list ${svnRepo} `;
 
     svnCmd += getSvnBaseCmd();

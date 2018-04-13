@@ -10,7 +10,6 @@
   "scripts": {
     "sass": "node-sass --include-path sass sass/index.sass public/bundle.css",
     "browserify": "browserify react_components/boot.js -o public/bundle.js",
-    "uglifyjs": "uglifyjs public/bundle.js -m -o public/bundle.js",
     "cleancss": "cleancss -o public/bundle.css public/bundle.css",
     "build": "npm run browserify && npm run sass",
     "release": "npm run build && npm run uglifyjs && npm run cleancss",
@@ -49,7 +48,7 @@
     "serve-favicon": "^2.3.0",
     "superagent": "^1.8.5",
     "svn-spawn": "^0.1.5",
-    "uglify-js": "^2.7.3",
+    "uglify-js": "^3.3.21",
     "xhr-promise": "^2.0.0",
     "xhr2": "^0.1.4",
     "xmlhttprequest": "^1.8.0"
