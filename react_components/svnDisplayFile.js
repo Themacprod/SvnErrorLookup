@@ -15,10 +15,9 @@ module.exports = CreateReactClass({
                     readOnly: true
                 },
                 editorDidMount: function (editor) {
-                    editor.setCursor({
-                        line: line,
-                        ch: 0
-                    });
+                    const t = editor.charCoords({line: line, ch: 0}, "local").top; 
+                    const middleHeight = editor.getScrollerElement().offsetHeight / 2; 
+                    editor.scrollTo(null, t - middleHeight - 5); 
                 }
             });
         }
