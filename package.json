@@ -1,5 +1,5 @@
 {
-  "name": "SvnErrorLookup",
+  "name": "svnerrorlookup",
   "description": "SVN error lookup",
   "version": "1.0.0",
   "repository": {
@@ -9,7 +9,8 @@
   "private": true,
   "scripts": {
     "sass": "node-sass --include-path sass sass/index.sass public/bundle.css",
-    "browserify": "browserify react_components/boot.js -o public/bundle.js",
+    "browserify": "browserify react_components/boot.js -t envify -o public/bundle.js",
+    "uglifyjs": "uglifyjs public/bundle.js -m -o public/bundle.js",
     "cleancss": "cleancss -o public/bundle.css public/bundle.css",
     "build": "npm run browserify && npm run sass",
     "release": "npm run build && npm run uglifyjs && npm run cleancss",
@@ -31,6 +32,7 @@
     "codemirror": "^5.36.0",
     "cookie-parser": "^1.4.1",
     "create-react-class": "^15.6.3",
+    "envify": "^4.1.0",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "font-awesome": "^4.7.0",
