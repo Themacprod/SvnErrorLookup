@@ -15,9 +15,13 @@ module.exports = CreateReactClass({
                     readOnly: true
                 },
                 editorDidMount: function (editor) {
-                    const t = editor.charCoords({line: line, ch: 0}, "local").top; 
-                    const middleHeight = editor.getScrollerElement().offsetHeight / 2; 
-                    editor.scrollTo(null, t - middleHeight - 5); 
+                    // Center scroll to line.
+                    const t = editor.charCoords({line: line, ch: 0}, "local").top;
+                    const middleHeight = editor.getScrollerElement().offsetHeight / 2;
+                    editor.scrollTo(null, t - middleHeight - 5);
+
+                    // Highlight the specified line.
+                    editor.addLineClass(line - 1, 'background', 'line-selected');
                 }
             });
         }
