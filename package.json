@@ -26,6 +26,7 @@
     "bootstrap": "^4.1.0",
     "browserify": "^16.2.0",
     "buffer": "^5.1.0",
+    "child-process-promise": "^2.2.1",
     "clean-css": "^3.4.19",
     "co": "^4.6.0",
     "codemirror": "^5.36.0",
@@ -44,7 +45,7 @@
     "react-spinners": "^0.3.2",
     "serve-favicon": "^2.5.0",
     "superagent": "^1.8.5",
-    "uglify-js": "^3.3.21",
+    "uglify-es": "^3.3.9",
     "xhr2": "^0.1.4"
   },
   "devDependencies": {
