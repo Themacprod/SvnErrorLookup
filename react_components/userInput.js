@@ -9,7 +9,11 @@ module.exports = CreateReactClass({
 
         if (codeLineStr && svnCommitStr && fileStr) {
             const codeLine = parseInt(codeLineStr[0].substring(1, codeLineStr[0].length - 1), 10);
-            const revision = parseInt(svnCommitStr[0].substring(1, svnCommitStr[0].length - 1), 10);
+            let revision = parseInt(svnCommitStr[0].substring(1, svnCommitStr[0].length - 1), 10);
+
+            if (revision == 0) {
+                revision = 'HEAD';
+            }
 
             this.props.callback(revision, fileStr[0], codeLine);
         }

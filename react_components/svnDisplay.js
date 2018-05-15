@@ -80,16 +80,37 @@ module.exports = CreateReactClass({
                         filePrev: res.body.file
                     });
 
-                    this.getSvnFileCur(filePath);
+                    if (this.props.revision === 0 || this.props.revision === 'HEAD') {
+                        this.getSvnFileHead(filePath);
+                    } else {
+                        this.getSvnFileCur(filePath, this.props.revision);
+                    }
                 }
             });
     },
-    getSvnFileCur: function (filePath) {
+    getSvnFileHead: function (filePath) {
+        request
+        .post('/api/getSvnHead/')
+        .send({
+            filename: filePath
+        })
+        .end((err, res) => {
+            if (err) {
+                console.error('Get SVN head revision failed!');
+                return;
+            }
+
+            if (res) {
+                this.getSvnFileCur(filePath, res.body.head);
+            }
+        });
+    },
+    getSvnFileCur: function (filePath, revision) {
         request
             .post('/api/getSvnFile/')
             .send({
                 filename: filePath,
-                revision: this.props.revision
+                revision: revision
             })
             .end((err, res) => {
                 this.props.callBack();

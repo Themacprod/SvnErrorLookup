@@ -61,12 +61,20 @@ const getTextFile = function (filePath, revision) {
     });
 };
 
+const getRevision = function (revision) {
+    if (revision === 0) {
+        revision = 'HEAD';
+    }
+
+    return revision;
+};
+
 module.exports.getFullPath = function getFullPath(req, res) {
     const svnRepo = `${process.env.SVN_REPO}/ExternalDeviceLayer/Core`;
     let svnCmd = `svn list ${svnRepo} `;
 
     svnCmd += getSvnBaseCmd();
-    svnCmd += `--depth infinity --revision ${req.body.revision}`;
+    svnCmd += `--depth infinity --revision ${getRevision(req.body.revision)}`;
 
     promiseSpawn.exec(`${svnCmd} | grep ${req.body.filename}`)
         .then((result) => {
@@ -86,7 +94,7 @@ module.exports.getFullPath = function getFullPath(req, res) {
 
 module.exports.getLog = function getLog(req, res) {
     let svnCmd = '';
-    svnCmd += `svn log -r ${req.body.revision}:0 --limit 1 `;
+    svnCmd += `svn log -r ${getRevision(req.body.revision)}:0 --limit 1 `;
     svnCmd += `${req.body.filename} `;
     svnCmd += getSvnBaseCmd();
 
@@ -98,6 +106,28 @@ module.exports.getLog = function getLog(req, res) {
         })
         .catch((err) => {
             console.error(`getLog err : ${err}`);
+            res.sendStatus(400);
+        });
+};
+
+module.exports.getHead = function getHead(req, res) {
+    let svnCmd = `svn info ${req.body.filename}`;
+
+    promiseSpawn.exec(`${svnCmd} | grep Revision`)
+        .then((result) => {
+            let head = result.stdout.replace('Revision: ', '');
+
+            if (head) {
+                res.json({
+                    head: head
+                });
+            } else {
+                console.error(`svn list (parsing) err : ${err}`);
+                res.sendStatus(400);
+            }
+        })
+        .catch((err) => {
+            console.error(`svn info err : ${err}`);
             res.sendStatus(400);
         });
 };

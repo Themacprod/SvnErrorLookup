@@ -33,6 +33,8 @@ server.post('/api/getSvnFullPath', svnData.getFullPath);
 
 server.post('/api/getSvnLog', svnData.getLog);
 
+server.post('/api/getSvnHead', svnData.getHead);
+
 server.post('/api/getSvnFile', svnData.getFile);
 
 server.get('*', (req, res) => {
