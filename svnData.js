@@ -63,7 +63,7 @@ const getTextFile = function (filePath, revision) {
 
 const getRevision = function (revision) {
     if (revision === 0) {
-        revision = 'HEAD';
+        return 'HEAD';
     }
 
     return revision;
@@ -111,18 +111,17 @@ module.exports.getLog = function getLog(req, res) {
 };
 
 module.exports.getHead = function getHead(req, res) {
-    let svnCmd = `svn info ${req.body.filename}`;
+    const svnCmd = `svn info ${req.body.filename}`;
 
     promiseSpawn.exec(`${svnCmd} | grep Revision`)
         .then((result) => {
-            let head = result.stdout.replace('Revision: ', '');
+            const head = result.stdout.replace('Revision: ', '');
 
             if (head) {
                 res.json({
                     head: head
                 });
             } else {
-                console.error(`svn list (parsing) err : ${err}`);
                 res.sendStatus(400);
             }
         })

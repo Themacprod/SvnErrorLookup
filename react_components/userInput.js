@@ -11,7 +11,7 @@ module.exports = CreateReactClass({
             const codeLine = parseInt(codeLineStr[0].substring(1, codeLineStr[0].length - 1), 10);
             let revision = parseInt(svnCommitStr[0].substring(1, svnCommitStr[0].length - 1), 10);
 
-            if (revision == 0) {
+            if (revision === 0) {
                 revision = 'HEAD';
             }
 
