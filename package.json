@@ -23,7 +23,7 @@
   "license": "Proprietary",
   "dependencies": {
     "body-parser": "^1.15.0",
-    "bootstrap": "^4.1.0",
+    "bootstrap": "^4.1.1",
     "browserify": "^16.2.0",
     "child-process-promise": "^2.2.1",
     "clean-css": "^3.4.19",
