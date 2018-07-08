@@ -2,13 +2,11 @@ const React = require('react');
 const CreateReactClass = require('create-react-class');
 const request = require('superagent');
 const _ = require('lodash');
-const svnLog = require('./svnDisplayLog');
 const svnDisplayFile = require('./svnDisplayFile');
 
 module.exports = CreateReactClass({
     getInitialState: function () {
         return {
-            log: [],
             filePrev: [],
             fileCur: [],
             fullPath: '',
@@ -54,7 +52,6 @@ module.exports = CreateReactClass({
                     const prevRevision = _.words(res.body.log[1]);
 
                     this.setState({
-                        log: res.body.log,
                         revPrev: prevRevision[1]
                     });
 
@@ -142,12 +139,6 @@ module.exports = CreateReactClass({
             {
                 className: 'svnDisplay'
             },
-            React.createElement(svnLog, {
-                log: this.state.log,
-                curRevision: this.props.revision,
-                filename: this.props.filename
-            }),
-            React.createElement('hr'),
             React.createElement(
                 'div',
                 {
