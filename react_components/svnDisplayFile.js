@@ -16,7 +16,9 @@ module.exports = CreateReactClass({
                 },
                 editorDidMount: function (editor) {
                     // Center scroll to line.
-                    const t = editor.charCoords({line: line, ch: 0}, "local").top;
+                    const t = editor.charCoords({
+                        line: line, ch: 0
+                    }, 'local').top;
                     const middleHeight = editor.getScrollerElement().offsetHeight / 2;
                     editor.scrollTo(null, t - middleHeight - 5);
 
