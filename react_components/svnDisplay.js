@@ -90,20 +90,20 @@ module.exports = CreateReactClass({
     },
     getSvnFileHead: function (filePath) {
         request
-        .post('/api/getSvnHead/')
-        .send({
-            filename: filePath
-        })
-        .end((err, res) => {
-            if (err) {
-                console.error('Get SVN head revision failed!');
-                return;
-            }
+            .post('/api/getSvnHead/')
+            .send({
+                filename: filePath
+            })
+            .end((err, res) => {
+                if (err) {
+                    console.error('Get SVN head revision failed!');
+                    return;
+                }
 
-            if (res) {
-                this.getSvnFileCur(filePath, res.body.head);
-            }
-        });
+                if (res) {
+                    this.getSvnFileCur(filePath, res.body.head);
+                }
+            });
     },
     getSvnFileCur: function (filePath, revision) {
         request
