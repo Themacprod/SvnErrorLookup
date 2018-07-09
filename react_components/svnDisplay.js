@@ -7,7 +7,6 @@ const svnDisplayFile = require('./svnDisplayFile');
 module.exports = CreateReactClass({
     getInitialState: function () {
         return {
-            filePrev: [],
             fileCur: [],
             fullPath: '',
             revPrev: 0
@@ -73,10 +72,6 @@ module.exports = CreateReactClass({
                 }
 
                 if (res) {
-                    this.setState({
-                        filePrev: res.body.file
-                    });
-
                     if (this.props.revision === 0 || this.props.revision === 'HEAD') {
                         this.getSvnFileHead(filePath);
                     } else {
@@ -134,29 +129,12 @@ module.exports = CreateReactClass({
             }
         }
 
-        return React.createElement(
-            'div',
-            {
-                className: 'svnDisplay'
-            },
-            React.createElement(
-                'div',
-                {
-                    className: 'svnDiff'
-                },
-                React.createElement(svnDisplayFile, {
-                    filename: this.state.fullPath,
-                    file: this.state.filePrev,
-                    line: this.props.line,
-                    revision: this.state.revPrev
-                }),
-                React.createElement(svnDisplayFile, {
-                    filename: this.state.fullPath,
-                    file: this.state.fileCur,
-                    line: this.props.line,
-                    revision: this.props.revision
-                })
-            )
+        return React.createElement(svnDisplayFile, {
+                filename: this.state.fullPath,
+                file: this.state.fileCur,
+                line: this.props.line,
+                revision: this.props.revision
+            }
         );
     }
 });
