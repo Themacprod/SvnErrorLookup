@@ -22,7 +22,7 @@
 		"func-names": ["error", "as-needed"],
 		"indent": ["error", 4],
 		"linebreak-style": ["error", "windows"],
-		"no-console": ["error", { "allow": ["warn", "error"] }],
+		"no-console": "off",
 		"object-shorthand": "off"
 	}
 }

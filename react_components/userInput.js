@@ -10,7 +10,7 @@ module.exports = CreateReactClass({
             codeLine: 0
         };
     },
-    handleInputChange: function (e) {
+    handleInputChange: (e) => {
         const codeLineStr = (/\(\d+(?!\d)\)/).exec(e.target.value);
         const svnCommitStr = (/\[\d+(?!\d)\]/).exec(e.target.value);
         const fileStr = (/\w+.cpp\b/).exec(e.target.value);
@@ -23,6 +23,8 @@ module.exports = CreateReactClass({
                 revision = 'HEAD';
             }
 
+            console.log(this);
+
             this.setState({
                 btnState: 'btn btn-dark',
                 revision: revision,
@@ -31,14 +33,14 @@ module.exports = CreateReactClass({
             });
         }
     },
-    handleButtonClick: function () {
-        this.props.callback(
-            this.state.revision,
-            this.state.filename,
-            this.state.codeLine
-        );
+    handleButtonClick: () => {
+        let param = `/${this.state.revision}`;
+        param += `/${this.state.filename}`;
+        param += `/${this.state.codeLine}`;
+        window.location.href = `/getSvnFile${param}`;
     },
     render: function () {
+        console.log(this);
         return React.createElement(
             'div',
             {

@@ -1,15 +1,12 @@
 const React = require('react');
 const CreateReactClass = require('create-react-class');
 const request = require('superagent');
-const _ = require('lodash');
 const svnDisplayFile = require('./svnDisplayFile');
 
 module.exports = CreateReactClass({
     getInitialState: function () {
         return {
-            fileCur: [],
-            fullPath: '',
-            revPrev: 0
+            file: []
         };
     },
     getSvnFullPath: function () {
@@ -22,101 +19,33 @@ module.exports = CreateReactClass({
             .end((err, res) => {
                 if (err) {
                     console.error('Get SVN full path failed!');
-                    return;
+                    this.props.callBack();
                 }
 
                 if (res) {
-                    this.setState({
-                        fullPath: res.body.filePath
-                    });
-
-                    this.getSvnLog(res.body.filePath);
+                    this.getSvnFile(res.body.fullpath[0]);
                 }
             });
     },
-    getSvnLog: function (filePath) {
+    getSvnFile: function (filepath) {
         request
-            .post('/api/getSvnLog/')
+            .post('/api/getSvnFile/')
             .send({
-                filename: filePath,
+                filepath: filepath,
                 revision: this.props.revision
             })
             .end((err, res) => {
                 if (err) {
-                    console.error('Get SVN log failed!');
-                    return;
+                    console.error('Get SVN file failed!');
                 }
 
                 if (res) {
-                    const prevRevision = _.words(res.body.log[1]);
-
                     this.setState({
-                        revPrev: prevRevision[1]
+                        file: res.body.file
                     });
-
-                    this.getSvnFilePrev(filePath, prevRevision[1]);
-                }
-            });
-    },
-    getSvnFilePrev: function (filePath, revision) {
-        request
-            .post('/api/getSvnFile/')
-            .send({
-                filename: filePath,
-                revision: revision
-            })
-            .end((err, res) => {
-                if (err) {
-                    console.error('Get SVN previous file failed!');
-                    return;
                 }
 
-                if (res) {
-                    if (this.props.revision === 0 || this.props.revision === 'HEAD') {
-                        this.getSvnFileHead(filePath);
-                    } else {
-                        this.getSvnFileCur(filePath, this.props.revision);
-                    }
-                }
-            });
-    },
-    getSvnFileHead: function (filePath) {
-        request
-            .post('/api/getSvnHead/')
-            .send({
-                filename: filePath
-            })
-            .end((err, res) => {
-                if (err) {
-                    console.error('Get SVN head revision failed!');
-                    return;
-                }
-
-                if (res) {
-                    this.getSvnFileCur(filePath, res.body.head);
-                }
-            });
-    },
-    getSvnFileCur: function (filePath, revision) {
-        request
-            .post('/api/getSvnFile/')
-            .send({
-                filename: filePath,
-                revision: revision
-            })
-            .end((err, res) => {
                 this.props.callBack();
-
-                if (err) {
-                    console.error('Get SVN current file failed!');
-                    return;
-                }
-
-                if (res) {
-                    this.setState({
-                        fileCur: res.body.file
-                    });
-                }
             });
     },
     render: function () {
@@ -130,11 +59,10 @@ module.exports = CreateReactClass({
         }
 
         return React.createElement(svnDisplayFile, {
-                filename: this.state.fullPath,
-                file: this.state.fileCur,
-                line: this.props.line,
-                revision: this.props.revision
-            }
-        );
+            filename: this.props.filename,
+            file: this.state.file,
+            line: this.props.line,
+            revision: this.props.revision
+        });
     }
 });

@@ -5,52 +5,42 @@ const CodeMirror = require('react-codemirror2').UnControlled;
 
 module.exports = CreateReactClass({
     genFile: function (file, line) {
-        if (file.length > 2 && line) {
-            return React.createElement(CodeMirror, {
-                value: _.flattenDeep(file),
-                options: {
-                    mode: 'clike',
-                    theme: 'material',
-                    lineNumbers: true,
-                    readOnly: true
-                },
-                editorDidMount: function (editor) {
-                    // Center scroll to line.
-                    const t = editor.charCoords({
-                        line: line, ch: 0
-                    }, 'local').top;
-                    const middleHeight = editor.getScrollerElement().offsetHeight / 2;
-                    editor.scrollTo(null, t - middleHeight - 5);
+        if (file) {
+            if (file.length > 2 && line) {
+                return React.createElement(CodeMirror, {
+                    value: _.flattenDeep(file),
+                    options: {
+                        mode: 'clike',
+                        theme: 'material',
+                        lineNumbers: true,
+                        readOnly: true
+                    },
+                    editorDidMount: function (editor) {
+                        // Center scroll to line.
+                        const t = editor.charCoords({
+                            line: line, ch: 0
+                        }, 'local').top;
+                        const middleHeight = editor.getScrollerElement().offsetHeight / 2;
+                        editor.scrollTo(null, t - middleHeight - 5);
 
-                    // Highlight the specified line.
-                    editor.addLineClass(line - 1, 'background', 'line-selected');
-                }
-            });
-        }
-
-        return null;
-    },
-    genTitle: function () {
-        if (this.props.filename && this.props.revision) {
-            return React.createElement(
-                'em',
-                {
-                    className: 'filename'
-                },
-                `${this.props.filename}@${this.props.revision}`
-            );
+                        // Highlight the specified line.
+                        editor.addLineClass(line - 1, 'background', 'line-selected');
+                    }
+                });
+            }
         }
 
         return null;
     },
     render: function () {
+        console.log('svnDisplayFile');
+        console.log(this.props);
         return React.createElement(
             'div',
             {
                 className: 'file'
             },
-            this.genTitle(this.props.filename, this.props.revision),
-            this.genFile(this.props.file, this.props.line)
+            this.genFile(this.props.file, parseInt(this.props.line, 10))
         );
     }
 });
