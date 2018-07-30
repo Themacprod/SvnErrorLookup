@@ -6,7 +6,7 @@ const JQuery = require('jquery');
 const History = require('history');
 const ReactRouter = require('react-router-dom');
 const userInput = require('./userInput');
-const displayFile = require('./svnDisplaySingle');
+const displayFile = require('./svnDisplay');
 const cLike = require('codemirror/mode/clike/clike');
 
 // https://reacttraining.com/react-router/web/api/Switch

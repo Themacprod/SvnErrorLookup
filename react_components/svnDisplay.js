@@ -1,39 +1,28 @@
 const React = require('react');
 const CreateReactClass = require('create-react-class');
 const request = require('superagent');
-const svnDisplayFile = require('./svnDisplayFile');
+const _ = require('lodash');
+const CodeMirror = require('react-codemirror2').UnControlled;
+const loading = require('./loading');
 
 module.exports = CreateReactClass({
     getInitialState: function () {
         return {
-            file: []
+            file: [],
+            loading: false
         };
     },
-    getSvnFullPath: function () {
-        request
-            .post('/api/getSvnFullPath/')
-            .send({
-                filename: this.props.filename,
-                revision: this.props.revision
-            })
-            .end((err, res) => {
-                if (err) {
-                    console.error('Get SVN full path failed!');
-                    this.props.callBack();
-                }
+    getSvnFile: () => {
+        this.setState({
+            loading: true
+        });
 
-                if (res) {
-                    this.getSvnFile(res.body.fullpath[0]);
-                }
-            });
-    },
-    getSvnFile: function (filepath) {
+        let param = `/${this.props.commit}`;
+        param += `/${this.props.filename}`;
+        param += `/${this.props.line}`;
+
         request
-            .post('/api/getSvnFile/')
-            .send({
-                filepath: filepath,
-                revision: this.props.revision
-            })
+            .get(`/api/getSvnFile2${param}`)
             .end((err, res) => {
                 if (err) {
                     console.error('Get SVN file failed!');
@@ -45,24 +34,62 @@ module.exports = CreateReactClass({
                     });
                 }
 
-                this.props.callBack();
+                this.setState({
+                    loading: false
+                });
             });
     },
-    render: function () {
-        if (this.props.filename !== this.oldFilename) {
-            this.oldFilename = this.props.filename;
+    componentWillMount: () => {
+        console.log(this.props);
 
-            if (this.props.filename !== '' &&
-                this.props.revision !== '') {
-                this.getSvnFullPath();
+        if (this.props &&
+            (this.props.commit !== '') &&
+            (this.props.filename !== '') &&
+            (this.props.line !== '')) {
+            this.getSvnFile();
+        } else {
+            console.log('Bad props passed');
+        }
+    },
+    genFile: (file, line) => {
+        if (file) {
+            if (file.length > 2 && line) {
+                return React.createElement(CodeMirror, {
+                    value: _.flattenDeep(file),
+                    options: {
+                        mode: 'clike',
+                        theme: 'material',
+                        lineNumbers: true,
+                        readOnly: true
+                    },
+                    editorDidMount: function (editor) {
+                        // Center scroll to line.
+                        const t = editor.charCoords({
+                            line: line, ch: 0
+                        }, 'local').top;
+                        const middleHeight = editor.getScrollerElement().offsetHeight / 2;
+                        editor.scrollTo(null, t - middleHeight - 5);
+
+                        // Highlight the specified line.
+                        editor.addLineClass(line - 1, 'background', 'line-selected');
+                    }
+                });
             }
         }
 
-        return React.createElement(svnDisplayFile, {
-            filename: this.props.filename,
-            file: this.state.file,
-            line: this.props.line,
-            revision: this.props.revision
-        });
+        return null;
+    },
+    render: () => {
+        if (this.state.loading === true) {
+            return React.createElement(loading);
+        }
+
+        return React.createElement(
+            'div',
+            {
+                className: 'filefull'
+            },
+            this.genFile(this.state.file, 620)
+        );
     }
 });
