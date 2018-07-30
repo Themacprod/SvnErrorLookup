@@ -10,7 +10,7 @@ module.exports = CreateReactClass({
             codeLine: 0
         };
     },
-    handleInputChange: (e) => {
+    handleInputChange: function (e) {
         const codeLineStr = (/\(\d+(?!\d)\)/).exec(e.target.value);
         const svnCommitStr = (/\[\d+(?!\d)\]/).exec(e.target.value);
         const fileStr = (/\w+.cpp\b/).exec(e.target.value);
@@ -33,14 +33,13 @@ module.exports = CreateReactClass({
             });
         }
     },
-    handleButtonClick: () => {
+    handleButtonClick: function () {
         let param = `/${this.state.revision}`;
         param += `/${this.state.filename}`;
         param += `/${this.state.codeLine}`;
         window.location.href = `/getSvnFile${param}`;
     },
     render: function () {
-        console.log(this);
         return React.createElement(
             'div',
             {
