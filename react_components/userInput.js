@@ -23,8 +23,6 @@ module.exports = CreateReactClass({
                 revision = 'HEAD';
             }
 
-            console.log(this);
-
             this.setState({
                 btnState: 'btn btn-dark',
                 revision: revision,

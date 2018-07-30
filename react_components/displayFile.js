@@ -1,9 +1,9 @@
 const React = require('react');
 const CreateReactClass = require('create-react-class');
 const request = require('superagent');
-const Spinner = require('react-spinners');
 const _ = require('lodash');
 const CodeMirror = require('react-codemirror2').UnControlled;
+const loading = require('./loading');
 
 module.exports = CreateReactClass({
     getInitialState: function () {
@@ -12,14 +12,14 @@ module.exports = CreateReactClass({
             loading: false
         };
     },
-    getSvnFile: function () {
+    getSvnFile: function (params) {
         this.setState({
             loading: true
         });
 
-        let param = `/${this.props.commit}`;
-        param += `/${this.props.filename}`;
-        param += `/${this.props.line}`;
+        let param = `/${params.commit}`;
+        param += `/${params.filename}`;
+        param += `/${params.line}`;
 
         request
             .get(`/api/getSvnFile2${param}`)
@@ -39,40 +39,8 @@ module.exports = CreateReactClass({
                 });
             });
     },
-    componentWillMount: () => {
-        console.log(this.props);
-
-        if (this.props &&
-            (this.props.commit !== '') &&
-            (this.props.filename !== '') &&
-            (this.props.line !== '')) {
-            this.getSvnFile();
-        } else {
-            console.log('Bad props passed');
-        }
-    },
-    genLoading: () => {
-        return React.createElement('div', {
-            className: 'loading'
-        }, React.createElement(
-            'div',
-            {
-                className: 'spinner'
-            },
-            React.createElement(
-                'strong',
-                {
-                    className: 'loading-text'
-                },
-                'Fetching data on SVN server ...'
-            ),
-            React.createElement(
-                Spinner.PacmanLoader,
-                {
-                    loading: this.state.loading
-                }
-            )
-        ));
+    componentWillMount: function () {
+        this.getSvnFile(this.props.match.params);
     },
     genFile: (file, line) => {
         if (file) {
@@ -102,9 +70,9 @@ module.exports = CreateReactClass({
 
         return null;
     },
-    render: () => {
+    render: function () {
         if (this.state.loading === true) {
-            return this.genLoading();
+            return React.createElement(loading);
         }
 
         return React.createElement(
@@ -112,7 +80,7 @@ module.exports = CreateReactClass({
             {
                 className: 'filefull'
             },
-            this.genFile(this.state.file, 620)
+            this.genFile(this.state.file, this.props.match.params.line)
         );
     }
 });
