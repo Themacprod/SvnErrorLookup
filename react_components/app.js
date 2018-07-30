@@ -6,7 +6,7 @@ const JQuery = require('jquery');
 const History = require('history');
 const ReactRouter = require('react-router-dom');
 const userInput = require('./userInput');
-const displayFile = require('./svnDisplay');
+const displayFile = require('./svnDisplayFile');
 const cLike = require('codemirror/mode/clike/clike');
 
 // https://reacttraining.com/react-router/web/api/Switch
@@ -26,16 +26,15 @@ module.exports = CreateReactClass({
                 {
                     className: 'app'
                 },
-                React.createElement(
-                    ReactRouter.Switch,
-                    React.createElement(ReactRouter.Route, {
-                        path: '/getSvnFile/:commit/:filename/:line',
-                        component: displayFile
-                    }),
-                    React.createElement(ReactRouter.Route, {
-                        component: userInput
-                    })
-                )
+                React.createElement(ReactRouter.Route, {
+                    path: '/',
+                    exact: true,
+                    component: userInput
+                }),
+                React.createElement(ReactRouter.Route, {
+                    path: '/getSvnFile/:commit/:filename/:line',
+                    component: displayFile
+                })
             )
         );
     }

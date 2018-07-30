@@ -34,7 +34,7 @@ server.post('/api/getSvnFile', svnData.getFile);
 
 server.get('/api/getTest', svnData.getTest);
 
-// server.get('/api/getSvnFile2/:commit/:filename/:line', svnData.getFile2);
+server.get('/api/getSvnFile2/:commit/:filename/:line', svnData.getFile2);
 
 server.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/index.html'));

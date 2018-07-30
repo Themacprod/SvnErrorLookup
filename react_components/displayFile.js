@@ -6,13 +6,13 @@ const _ = require('lodash');
 const CodeMirror = require('react-codemirror2').UnControlled;
 
 module.exports = CreateReactClass({
-    getInitialState: () => {
+    getInitialState: function () {
         return {
             file: [],
             loading: false
         };
     },
-    getSvnFile: () => {
+    getSvnFile: function () {
         this.setState({
             loading: true
         });

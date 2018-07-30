@@ -1,28 +1,39 @@
 const React = require('react');
 const CreateReactClass = require('create-react-class');
 const request = require('superagent');
-const _ = require('lodash');
-const CodeMirror = require('react-codemirror2').UnControlled;
-const loading = require('./loading');
+const svnDisplayFile = require('./svnDisplayFile');
 
 module.exports = CreateReactClass({
     getInitialState: function () {
         return {
-            file: [],
-            loading: false
+            file: []
         };
     },
-    getSvnFile: () => {
-        this.setState({
-            loading: true
-        });
-
-        let param = `/${this.props.commit}`;
-        param += `/${this.props.filename}`;
-        param += `/${this.props.line}`;
-
+    getSvnFullPath: function () {
         request
-            .get(`/api/getSvnFile2${param}`)
+            .post('/api/getSvnFullPath/')
+            .send({
+                filename: this.props.filename,
+                revision: this.props.revision
+            })
+            .end((err, res) => {
+                if (err) {
+                    console.error('Get SVN full path failed!');
+                    this.props.callBack();
+                }
+
+                if (res) {
+                    this.getSvnFile(res.body.fullpath[0]);
+                }
+            });
+    },
+    getSvnFile: function (filepath) {
+        request
+            .post('/api/getSvnFile/')
+            .send({
+                filepath: filepath,
+                revision: this.props.revision
+            })
             .end((err, res) => {
                 if (err) {
                     console.error('Get SVN file failed!');
@@ -34,62 +45,24 @@ module.exports = CreateReactClass({
                     });
                 }
 
-                this.setState({
-                    loading: false
-                });
+                this.props.callBack();
             });
     },
-    componentWillMount: () => {
-        console.log(this.props);
+    render: function () {
+        if (this.props.filename !== this.oldFilename) {
+            this.oldFilename = this.props.filename;
 
-        if (this.props &&
-            (this.props.commit !== '') &&
-            (this.props.filename !== '') &&
-            (this.props.line !== '')) {
-            this.getSvnFile();
-        } else {
-            console.log('Bad props passed');
-        }
-    },
-    genFile: (file, line) => {
-        if (file) {
-            if (file.length > 2 && line) {
-                return React.createElement(CodeMirror, {
-                    value: _.flattenDeep(file),
-                    options: {
-                        mode: 'clike',
-                        theme: 'material',
-                        lineNumbers: true,
-                        readOnly: true
-                    },
-                    editorDidMount: function (editor) {
-                        // Center scroll to line.
-                        const t = editor.charCoords({
-                            line: line, ch: 0
-                        }, 'local').top;
-                        const middleHeight = editor.getScrollerElement().offsetHeight / 2;
-                        editor.scrollTo(null, t - middleHeight - 5);
-
-                        // Highlight the specified line.
-                        editor.addLineClass(line - 1, 'background', 'line-selected');
-                    }
-                });
+            if (this.props.filename !== '' &&
+                this.props.revision !== '') {
+                this.getSvnFullPath();
             }
         }
 
-        return null;
-    },
-    render: () => {
-        if (this.state.loading === true) {
-            return React.createElement(loading);
-        }
-
-        return React.createElement(
-            'div',
-            {
-                className: 'filefull'
-            },
-            this.genFile(this.state.file, 620)
-        );
+        return React.createElement(svnDisplayFile, {
+            filename: this.props.filename,
+            file: this.state.file,
+            line: this.props.line,
+            revision: this.props.revision
+        });
     }
 });

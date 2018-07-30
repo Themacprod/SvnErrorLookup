@@ -328,12 +328,18 @@ module.exports.getTest = function getTest(req) {
 };
 
 module.exports.getFile2 = function getFile2(req, res) {
-    console.log(req.params);
     svnDb.getList(req.params.commit, req.params.filename)
         .then((list) => {
-            res.json({
-                fullpath: list
-            });
+            getTextFile(list[0], req.params.commit)
+                .then((result2) => {
+                    res.json({
+                        file: result2.split(/\r?\n/)
+                    });
+                })
+                .catch((err2) => {
+                    console.error(`getFile err : ${err2}`);
+                    res.sendStatus(400);
+                });
         })
         .catch((err) => {
             console.error(`getFullPath err : ${err}`);
