@@ -9,8 +9,6 @@ const userInput = require('./userInput');
 const displayFile = require('./displayFile');
 const cLike = require('codemirror/mode/clike/clike');
 
-// https://reacttraining.com/react-router/web/api/Switch
-
 module.exports = CreateReactClass({
     componentDidMount: function () {
         global.jQuery = JQuery;
