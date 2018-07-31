@@ -258,7 +258,7 @@ module.exports.reduceCommits = function reduceCommits(commitList, callback) {
                 if (commitWithModifTmp.length !== 0) {
                     const maxCommit = _.maxBy(commitList);
                     const minCommit = _.maxBy(commitWithModif);
-                
+
                     reduceList.push({
                         max: maxCommit,
                         min: minCommit
