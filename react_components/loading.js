@@ -9,20 +9,26 @@ module.exports = CreateReactClass({
         }, React.createElement(
             'div',
             {
-                className: 'spinner'
+                className: 'loading-container'
             },
             React.createElement(
-                'strong',
+                'div',
                 {
                     className: 'loading-text'
                 },
                 'Fetching data on SVN server ...'
             ),
             React.createElement(
-                Spinner.PacmanLoader,
+                'div',
                 {
-                    loading: true
-                }
+                    className: 'spinner'
+                },
+                React.createElement(
+                    Spinner.PacmanLoader,
+                    {
+                        loading: true
+                    }
+                )
             )
         ));
     }
