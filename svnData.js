@@ -102,7 +102,7 @@ module.exports.getList = function getList(revision, callback) {
                 console.error(`svn list err : ${err}`);
                 callback(null);
             });
-    }, 5000)
+    }, 5000);
 };
 
 module.exports.getFullPath = function getFullPath(req, res) {
