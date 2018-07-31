@@ -28,12 +28,6 @@ server.use(express.static(path.join(__dirname, 'public'), {
     maxAge: cacheMaxAge
 }));
 
-server.post('/api/getSvnFullPath', svnData.getFullPath);
-
-server.post('/api/getSvnFile', svnData.getFile);
-
-server.get('/api/getTest', svnData.getTest);
-
 server.get('/api/getSvnFile2/:commit/:filename/:line', svnData.getFile2);
 
 server.get('*', (req, res) => {
