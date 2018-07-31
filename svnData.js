@@ -311,23 +311,6 @@ module.exports.getHead = function getHead(callback) {
 };
 
 module.exports.getFile = function getFile(req, res) {
-    getTextFile(req.body.filepath, req.body.revision)
-        .then((result) => {
-            res.json({
-                file: result.split(/\r?\n/)
-            });
-        })
-        .catch((err) => {
-            console.error(`getFile err : ${err}`);
-            res.sendStatus(400);
-        });
-};
-
-module.exports.getTest = function getTest(req) {
-    console.log(req.query);
-};
-
-module.exports.getFile2 = function getFile2(req, res) {
     svnDb.getList(req.params.commit, req.params.filename)
         .then((list) => {
             getTextFile(list[0], req.params.commit)

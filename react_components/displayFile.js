@@ -22,7 +22,7 @@ module.exports = CreateReactClass({
         param += `/${params.line}`;
 
         request
-            .get(`/api/getSvnFile2${param}`)
+            .get(`/api/getSvnFile${param}`)
             .end((err, res) => {
                 if (err) {
                     console.error('Get SVN file failed!');
