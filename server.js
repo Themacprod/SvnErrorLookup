@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const favicon = require('serve-favicon');
 const svnData = require('./svnData');
-
+const sshCmd = require('./sshCmd');
 const server = express();
 const cacheMaxAge = process.env.NODE_ENV === 'development' ? 0 : 3600000;
 
@@ -29,6 +29,8 @@ server.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 server.get('/api/getSvnFile/:commit/:filename/:line', svnData.getFile);
+
+server.get('/api/getDmesg/:ip', sshCmd.getDmesg);
 
 server.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/index.html'));
