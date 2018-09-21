@@ -1,6 +1,8 @@
 const mongoClient = require('mongodb').MongoClient;
 
 module.exports.connect = () => {
+    console.log(`Connecting to ${process.env.MONGODB_URL} ...`);
+
     const promise = mongoClient.connect(
         process.env.MONGODB_URL,
         { useNewUrlParser: true }
