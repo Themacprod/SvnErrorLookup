@@ -163,17 +163,27 @@ const processArray = function (array, fn) {
 };
 
 module.exports.getCommits = function getCommits(minRev, maxRev, callback) {
+    if (typeof minRev !== 'number') {
+        console.err('Min revision should be a number!');
+        return;
+    }
+
+    if (typeof maxRev !== 'number') {
+        console.err('Max revision should be a number!');
+        return;
+    }
+
     const diff = maxRev - minRev;
 
     if (diff !== 0) {
         const increment = 800;
         const commitRanges = [];
 
-        for (let min = parseInt(minRev, 10); parseInt(min, 10) < parseInt(maxRev, 10); min += increment) {
-            let max = parseInt(min, 10) + increment;
+        for (let min = minRev; min < maxRev; min += increment) {
+            let max = min + increment;
 
-            if ((parseInt(min, 10) + increment) > parseInt(maxRev, 10)) {
-                max = parseInt(maxRev, 10);
+            if ((min + increment) > maxRev) {
+                max = maxRev;
             }
 
             commitRanges.push({
@@ -206,7 +216,7 @@ const log = function (data) {
     console.log(`${date.toString()} | ${data}`);
 };
 
-module.exports.isFilesModified = function isFilesModified(revision) {
+const isFilesModified = function (revision) {
     let svnCmd = '';
     svnCmd += `svn log -r ${revision}:0 --limit 1 `;
     svnCmd += getSvnBaseCmd();
@@ -217,7 +227,7 @@ module.exports.isFilesModified = function isFilesModified(revision) {
         promiseSpawn.exec(svnCmd)
             .then((result) => {
                 let addedLine = _.filter(result.stdout.split(/\r?\n/), (line) => {
-                    return (/   A \//).exec(line);
+                    return (/\/{3}A \//).exec(line);
                 });
 
                 addedLine = _.filter(addedLine, (line) => {
@@ -239,6 +249,8 @@ module.exports.isFilesModified = function isFilesModified(revision) {
             });
     });
 };
+
+module.exports.isFilesModified = isFilesModified;
 
 module.exports.reduceCommits = function reduceCommits(commitList, callback) {
     processArray(_.sortBy(commitList), isFilesModified)

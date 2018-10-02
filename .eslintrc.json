@@ -23,6 +23,7 @@
 		"indent": ["error", 4],
 		"linebreak-style": ["error", "windows"],
 		"no-console": "off",
-		"object-shorthand": "off"
+		"object-shorthand": "off",
+		"arrow-body-style": "off"
 	}
 }

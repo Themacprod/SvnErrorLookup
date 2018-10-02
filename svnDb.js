@@ -24,7 +24,7 @@ const getLatestPromise = function() {
 const getHeadPromise = function() {
     return new Promise(function (resolve) {
         svnData.getHead( function(headCommit) {
-            resolve(headCommit);
+            resolve(Number(headCommit[0]));
         });
     });
 };
@@ -187,8 +187,7 @@ async function updateASync () {
         log(`No commit stored, used default min : ${lastCommitStored}`);
     }
 
-    const headCommitRaw = await getHeadPromise();
-    const headCommit = headCommitRaw[0];
+    const headCommit = await getHeadPromise();
     log(`Head commit : ${headCommit}`);
     
     const diff = headCommit - lastCommitStored;
