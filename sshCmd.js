@@ -15,7 +15,7 @@ module.exports.getDmesg = function getDmesg(req, res) {
                     dmesg: data.toString().split(/\r?\n/)
                 });
             }).stderr.on('data', (data) => {
-                console.err(data);
+                console.error(data);
             });
         });
     }).connect({

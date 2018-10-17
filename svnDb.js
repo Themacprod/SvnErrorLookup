@@ -1,14 +1,15 @@
 var database = require("./database");
 var svnData = require("./svnData");
 var _ = require('lodash');
+var ObjectID = require("mongodb").ObjectID;
 
-const getLatestPromise = function() {
+const getLatestCommit = function() {
     return new Promise(function (resolve, reject) {
         database.commits
             .find({
             })
             .sort({
-                maxcommit: -1
+                value: -1
             })
             .limit(1)
             .toArray(function(err, docs) {
@@ -21,7 +22,7 @@ const getLatestPromise = function() {
         });
 };
 
-const getHeadPromise = function() {
+const getSvnHeadPromise = function() {
     return new Promise(function (resolve) {
         svnData.getHead( function(headCommit) {
             resolve(Number(headCommit[0]));
@@ -30,6 +31,16 @@ const getHeadPromise = function() {
 };
 
 const getCommitPromise = function(lastCommitStored, headCommit) {
+    if (typeof lastCommitStored !== 'number') {
+        console.error('lastCommitStored revision should be a number!');
+        return;
+    }
+
+    if (typeof headCommit !== 'number') {
+        console.error('headCommit revision should be a number!');
+        return;
+    }
+
     return new Promise(function (resolve) {
         svnData.getCommits(
             lastCommitStored,
@@ -41,254 +52,399 @@ const getCommitPromise = function(lastCommitStored, headCommit) {
     })
 };
 
-const updateEntryInDB = function(id, oldMax, newMax, min) {
-    database.commits.updateOne({
-            _id: id
-        }, {
-            $set: {
-                maxcommit: newMax
-            }
-        }, {
-            upsert: true
-        })
-        .then(result => {
-            console.log(`Updated range from [${oldMax}:${min}] to [${newMax}:${min}] in the DB`);
-            return result;
-        });
+const addZero = function(x, n) {
+    while (x.toString().length < n) {
+        x = "0" + x;
+    }
+    return x;
 };
 
-const updateReduceInDb = function(revision, modified) {
-    if (modified !== -1) {
-        database.modifications.updateOne({
-            name: 'reduce'
-        }, {
-            $addToSet: {revisions: revision }
-        }, {
-            upsert: true
-        })
-        .then(result => {
-            console.log(`Added ${revision} in the DB`);
-            return result;
+const log = function(data) {
+    let date = new Date();
+    let h = addZero(date.getHours(), 2);
+    let m = addZero(date.getMinutes(), 2);
+    let s = addZero(date.getSeconds(), 2);
+    let ms = addZero(date.getMilliseconds(), 3);
+
+    console.log(`${h}:${m}:${s}:${ms} | ${data}`);
+};
+
+const findBranch = function(branch) {
+    return new Promise(function (resolve, reject) {
+        database.branches.findOne({
+            value: branch
+        }, function(err, docs) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(docs);
+            }
         });
+    });
+};
+
+const findTree = function(tree) {
+    return new Promise(function (resolve, reject) {
+        database.trees.findOne({
+            value: tree
+        }, function(err, docs) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(docs);
+            }
+        });
+    });
+};
+
+module.exports.findTree = findTree;
+
+const AddBranch = function(branch) {
+    database.branches.insertOne({
+        _id: branch._id,
+        value: branch.value,
+    }, function(err) {
+        if (err) {
+            console.error(err);
+        } else {
+            log(`Added new branch [${branch.value}] in the database`);
+        }
+    });
+};
+
+const AddTree = function(tree) {
+    database.trees.insertOne({
+        _id: tree._id,
+        value: tree.value,
+    }, function(err) {
+        if (err) {
+            console.error(err);
+        } else {
+            log('Added new tree in the database');
+        }
+    });
+};
+
+const AddCommit = function(commit) {
+    database.commits.insertOne({
+        value: commit.value,
+        branch: commit.branch,
+        tree: commit.tree,
+    }, function(err) {
+        if (err) {
+            console.error(err);
+        } else {
+            log(`Added commit ${commit.value} in the database`);
+        }
+    });
+};
+
+const PromiseSleep = function PromiseSleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+const insertInFullList = function insertInFullList(revisions) {
+    database.full.insertOne({
+        list: revisions
+    }, function(err) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log('Added new commit in full list');
+        }
+    });
+};
+
+const addToFullList = function addToFullList(revisions) {
+    return new Promise(function (resolve, reject) {
+        database.full
+        .find({
+        })
+        .limit(1)
+        .toArray(function(err, docs) {
+            if (err) {
+                reject(err);
+            } else {
+                database.full.updateOne({
+                    _id: docs[0]._id
+                }, {
+                    $push: {
+                        list: { $each: revisions}
+                    }
+                }, function(err2) {
+                    if (err2) {
+                        log(err2);
+                        reject(err2);
+                    } else {
+                        log(`Collection full : Added new revisions`);
+                        resolve();
+                    }
+                });
+            }
+        });
+    });
+};
+
+async function updateDbRawFullList () {
+    // Get the max revision stored in the DB.
+    let headDbTmp = await getHeadDb();
+
+    let headDb = 0;
+    if (headDbTmp) {
+        headDb = Number(headDbTmp);
     } else {
-        database.modifications.updateOne({
-            name: 'reduce'
-        }, {
-            $set: {maxcommit: revision}
-        }, {
-            upsert: true
-        })
-        .then(result => {
-            console.log(`Updated max revision to ${revision} in the DB`);
-            return result;
-        });
+        console.log(`No maximum stored in the database, use ${process.env.SVN_START_COMMIT} as first commit`);
+        headDb = Number(process.env.SVN_START_COMMIT);
+    }
+
+    // Get the mex revision in the svn server.
+    let headSvn = await getSvnHeadPromise();
+
+    let diff = headSvn - headDb;
+
+    if (diff > 0) {
+        log(`SVN Head revision : ${headSvn}`);
+        log(`DB Head revision : ${headDb}`);
+        log(`Number of commit to update = ${diff}`);
+        log(`Getting commit list between [${headSvn} and ${headDb}] ... `);
+
+        let commitList = await getCommitPromise(headDb, headSvn);
+
+        // Get current list stored in the DB.
+        if (headDbTmp) {
+            await addToFullList(commitList);
+        } else {
+            await insertInFullList(commitList);
+        }
+    } else {
+        log('Collection full : List is up to date');
     }
 };
 
-const getReduceMaxPromise = function() {
+const getRawFullList = function getRawFullList() {
     return new Promise(function (resolve, reject) {
-        database.modifications
+        database.full
+        .find({
+        })
+        .limit(1)
+        .toArray(function(err, docs) {
+            if (err) {
+                reject(err);
+            } else {
+                if (docs.length > 0) {
+                    resolve(docs[0].list)
+                } else {
+                    resolve(null);
+                }
+            }
+        });
+    });
+};
+
+const getHeadDb = function getHeadDb() {
+    return new Promise(function (resolve, reject) {
+        database.full
             .find({
-                name: 'reduce'
             })
-            .limit(1)
             .toArray(function(err, docs) {
                 if (err) {
+                    console.error(err);
                     reject(err);
                 } else {
-                    resolve(docs);
+                    if (docs.length > 0) {
+                        resolve(_.max(docs[0].list));
+                    } else {
+                        resolve(null);
+                    }
                 }
             });
         });
 };
 
-const insertEntryInDB = function(min, max, list) {
-    database.commits.insertOne({
-        maxcommit: max,
-        mincommit: min,
-        list: list
-    }, function(err) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(`Added [${max}:${min}] in the database`);
-        }
+const getCommit = function getCommit(commit) {
+    return new Promise(function (resolve) {
+        database.commits.findOne({
+            value: commit
+        }, function(err, doc) {
+            if (err) {
+                resolve(null);
+            } else {
+                resolve(doc);
+            }
+        });
     });
 };
 
-const isFilesModified = function(revision, timeout) {
-    return new Promise(function(resolve) {
-        setTimeout(() => {
-            resolve(svnData.isFilesModified(revision));
-        }, timeout);
+module.exports.getCommit = getCommit;
+
+const getTree = function getTree(treeId) {
+    return new Promise(function (resolve) {
+        database.trees.findOne({
+            _id: treeId
+        }, function(err, doc) {
+            if (err) {
+                resolve(null);
+            } else {
+                resolve(doc);
+            }
+        });
     });
-}
-
-const log = function(data) {
-    let date = new Date();
-
-    console.log(`${date.toString()} | ${data}`);
 };
 
-const buildReduce = function(modifList, fullList) {
-    let commitListTmp = fullList;
-    let commitWithModifTmp = modifList;
+module.exports.getTree = getTree;
 
-    let reduceList = [];
+const getBranch = function getBranch(branchId) {
+    return new Promise(function (resolve) {
+        database.branches.findOne({
+            _id: branchId
+        }, function(err, doc) {
+            if (err) {
+                resolve(null);
+            } else {
+                resolve(doc);
+            }
+        });
+    });
+};
 
-    let stopLooking = false;
+module.exports.getBranch = getBranch;
 
-    while (!stopLooking) {
-        if (commitWithModifTmp.length !== 0) {
-            let maxCommit = _.maxBy(commitListTmp);
-            let minCommit = _.maxBy(commitWithModifTmp);
-        
-            reduceList.push({
-                max: maxCommit,
-                min: minCommit
-            });
+async function SanityCheck () {
+    log('Run sanity check ...');
 
-            console.log(`[${maxCommit}:${minCommit}]`);
+    let fullCommitList = await getRawFullList();
+    let noEntryCount = 0;
+    let EntryCount = 0;
 
-            commitListTmp = _.filter(commitListTmp, function(commit) {
-                return parseInt(commit) < minCommit;
-            });
+    for (let i = 0; i < fullCommitList.length; i += 1) {
+        let commitEntry = await getCommit(Number(fullCommitList[i]));
 
-            commitWithModifTmp = _.filter(commitWithModifTmp, function(commit) {
-                return parseInt(commit) < minCommit;
-            });
+        if (commitEntry) {
+            EntryCount += 1;
         } else {
-            reduceList.push({
-                max: _.maxBy(commitListTmp),
-                min: _.minBy(commitListTmp)
-            });
+            noEntryCount += 1;
 
-            console.log(`[${_.maxBy(commitListTmp)}:${_.minBy(commitListTmp)}]`);
-
-            stopLooking = true;
+            log(`No entry found for commit ${fullCommitList[i]}`);
+            await AddRevision(Number(fullCommitList[i]));
+            // log(`Collection commits : Wait 500ms before next request ...`);
+            await PromiseSleep(250);
         }
     }
 
-    return reduceList;
+    if (noEntryCount > 0) {
+        log(`No entry for ${noEntryCount} commit(s) vs ${EntryCount} commits`);
+    }
+
+    log('Sanity check done');
 };
 
 async function updateASync () {
-    let ret = await getLatestPromise();
 
-    let lastCommitStored = 105523;
-    let mincommitDb = 105523
+    //
+    // Keep the list of all the commit to save time.
+    //
+    await updateDbRawFullList();
+
+    let fullCommitList = await getRawFullList();
+
+    //
+    // Check what need to be updated.
+    //
+    let ret = await getLatestCommit();
+
+    let dbHead = Number(process.env.SVN_START_COMMIT);
 
     if (ret.length !== 0) {
-        lastCommitStored = ret[0].maxcommit;
-        log(`Last commit stored : ${lastCommitStored}`);
-
-        mincommitDb = ret[0].mincommit;
+        dbHead = Number(ret[0].value);
     } else {
-        log(`No commit stored, used default min : ${lastCommitStored}`);
+        log(`Collection commits : No commit stored, used default min : ${dbHead}`);
     }
 
-    const headCommit = await getHeadPromise();
-    log(`Head commit : ${headCommit}`);
+    let commitList = _.filter(fullCommitList, function(commit) {
+        return Number(commit) > dbHead;
+    })
+
+    if (commitList.length > 0) {
+        log(`Collection commits : Need to update ${commitList.length} commit(s)`);
+    }
     
-    const diff = headCommit - lastCommitStored;
-    log(`Number of commit to update = ${diff}`);
-
-    let commitList = [];
-
-    if (diff > 0) {
-        log(`Getting commit list between [${headCommit} and ${lastCommitStored}] ... `);
-        commitList = await getCommitPromise(
-            lastCommitStored,
-            headCommit
-        );
-    }
-
-    let commitListFull = commitList;
-
-    log(`Commit list size = ${commitList.length}`);
-
-    //
-    // Build modified commit list.
-    //
-    let commitWithModif = [];
-
-    // Get recude data stored in the DB to avoid svn log command.
-    const reduceEntry = await getReduceMaxPromise();
-
-    if (reduceEntry.length !== 0) {
-        commitWithModif.push(reduceEntry[0].revisions);
-
-        commitList = _.filter(commitList, function(commit) {
-            return commit > reduceEntry[0].maxcommit;
-        });
-    }
-
     for (let i = 0; i < commitList.length; i += 1) {
-        let isModified = await isFilesModified(commitList[i], 1250);
+        await AddRevision(Number(commitList[i]));
+        // log(`Collection commits : Wait 500ms before next request ...`);
+        await PromiseSleep(250);
+    }
 
-        if (isModified !== -1) {
-            commitWithModif.push(commitList[i]);
+    log('Commits are up to date');
+
+    await SanityCheck();
+};
+
+async function AddRevision (revision) {
+    // log(`--------------------------------------------------------------`);
+    // log(`Collection commits : Adding revision ${revision} in DB...`);
+
+    //
+    // Branch
+    //
+    let branchId = null;
+    let branchPath = await svnData.getBranchPath(revision);
+    let treeId = null;
+    if (branchPath) {
+        let branchFound = await findBranch(branchPath);
+    
+        if (branchFound) {
+            // log(`Collection branches : Branch [${branchPath}] already exist in DB.`);
+            branchId = branchFound._id;
+        } else {
+            branchId = new ObjectID();
+    
+            let branch = {
+                _id: branchId,
+                value: branchPath
+            };
+    
+            AddBranch(branch);
         }
 
-        updateReduceInDb(commitList[i], isModified);
+        //
+        // Retrieve the filter tree list (filter because it contain only code files).
+        //
+        let filterTree = await svnData.getFilterTree(branchPath, revision);
+        let treeFound = null;
+        
+        if (filterTree) {
+            treeFound = await findTree(filterTree);
+        }
+
+        if (treeFound) { 
+            // log(`Collection trees : Tree for revision ${revision} already exist in DB.`);
+            treeId = treeFound._id;
+        } else {
+            treeId = new ObjectID();
+
+            let tree = {
+                _id: treeId,
+                value: filterTree
+            };
+
+            AddTree(tree);
+        }
+    } else {
+        log(`Collection branches : Can't find branch for revision ${revision}.`);
     }
 
-    log(`commitWithModif list`);
-    commitWithModif = _.flattenDeep(commitWithModif);
+    //
+    // Commit
+    //
+    let commit = {
+        value: revision,
+        branch: branchId,
+        tree: treeId
+    };
 
-    // Build reduce list.
-    let reduce = [];
-    
-    if (commitListFull.length !== 0) {
-        log(`Build reduce list`);
-        reduce = buildReduce(commitWithModif, commitListFull);
-    }
-
-    for (let i = 0; i < reduce.length; i += 1) {
-        svnData.getList(reduce[i].min, function(list) {
-            // Check if lastest database entry needs to be updated
-            if (reduce[i].min === mincommitDb) {
-                updateEntryInDB(
-                    ret[0]._id,
-                    ret[0].maxcommit,
-                    reduce[i].max,
-                    reduce[i].min
-                );
-            } else {
-                insertEntryInDB(
-                    reduce[i].min,
-                    reduce[i].max,
-                    list
-                );
-            }
-        });
-    }
+    AddCommit(commit);
 };
 
 module.exports.update = function() {
     updateASync();
 };
-
-module.exports.getList = function(revision, filename) {
-    return new Promise(function (resolve, reject) {
-        database.commits
-            .find({
-                $and : [
-                    {'mincommit': {$lte: revision.toString()}},
-                    {'maxcommit': {$gte: revision.toString()}}
-                ]
-            })
-            .limit(1)
-            .toArray(function(err, docs) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(_.filter(docs[0].list, _.bind(function(file) {
-                        return file.indexOf(filename) !== -1;
-                    }, this)));
-                }
-            });
-        });
-};
-
-

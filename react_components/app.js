@@ -8,6 +8,7 @@ const ReactRouter = require('react-router-dom');
 const userInput = require('./userInput');
 const displayFile = require('./displayFile');
 const getDmesg = require('./getDmesg');
+const getInfo = require('./getInfo');
 const cLike = require('codemirror/mode/clike/clike');
 
 module.exports = CreateReactClass({
@@ -37,6 +38,10 @@ module.exports = CreateReactClass({
                 React.createElement(ReactRouter.Route, {
                     path: '/getDmesg/:ip',
                     component: getDmesg
+                }),
+                React.createElement(ReactRouter.Route, {
+                    path: '/getInfo/:commit',
+                    component: getInfo
                 })
             )
         );

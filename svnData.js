@@ -62,15 +62,7 @@ const getTextFile = function (filePath, revision) {
     });
 };
 
-const getRevision = function (revision) {
-    if (revision === 0) {
-        return 'HEAD';
-    }
-
-    return revision;
-};
-
-Array.prototype.contains = function(obj) {
+Array.prototype.contains = function (obj) {
     return this.indexOf(obj) > -1;
 };
 
@@ -78,52 +70,13 @@ const isValidFile = function (file) {
     return ['cpp', 'c', 'h', 'inl'].contains(file);
 };
 
-module.exports.getList = function getList(revision, callback) {
-    const svnRepo = `${process.env.SVN_REPO}/ExternalDeviceLayer/Core`;
-    let svnCmd = `svn list ${svnRepo} `;
-
-    svnCmd += getSvnBaseCmd();
-    svnCmd += `--depth infinity --revision ${getRevision(revision)}`;
-
-    setTimeout(() => {
-        promiseSpawn.exec(`${svnCmd}`)
-            .then((result) => {
-                let files = _.compact(result.stdout.split(/\r?\n/));
-
-                files = _.map(files, file => `${svnRepo}/${file}`);
-
-                callback(_.filter(files, (file) => {
-                    const tmp = file.substring(svnRepo.length - 1);
-                    const ext = tmp.split('.');
-                    return isValidFile(ext[1]);
-                }));
-            })
-            .catch((err) => {
-                console.error(`svn list err : ${err}`);
-                callback(null);
-            });
-    }, 5000);
-};
-
-module.exports.getFullPath = function getFullPath(req, res) {
-    svnDb.getList(req.body.revision, req.body.filename)
-        .then((list) => {
-            res.json({
-                fullpath: list
-            });
-        })
-        .catch((err) => {
-            console.error(`getFullPath err : ${err}`);
-            res.sendStatus(400);
-        });
-};
-
 const getCommitRange = function (range) {
     let svnCmd = '';
 
     svnCmd += `svn log -r ${range.max}:${range.min} `;
     svnCmd += getSvnBaseCmd();
-    svnCmd += ` ${process.env.SVN_REPO}/ExternalDeviceLayer/Core`;
+    // svnCmd += ` ${process.env.SVN_REPO}`;
+    svnCmd += ' svn://trantor.matrox.com/mgisoft/Mediaprocessor/SV2';
     svnCmd += ' -q';
 
     return new Promise((resolve, reject) => {
@@ -164,12 +117,12 @@ const processArray = function (array, fn) {
 
 module.exports.getCommits = function getCommits(minRev, maxRev, callback) {
     if (typeof minRev !== 'number') {
-        console.err('Min revision should be a number!');
+        console.error('Min revision should be a number!');
         return;
     }
 
     if (typeof maxRev !== 'number') {
-        console.err('Max revision should be a number!');
+        console.error('Max revision should be a number!');
         return;
     }
 
@@ -217,10 +170,15 @@ const log = function (data) {
 };
 
 const isFilesModified = function (revision) {
+    if (typeof revision === 'undefined') {
+        console.error('isFilesModified | revision is undefined');
+    }
+
     let svnCmd = '';
     svnCmd += `svn log -r ${revision}:0 --limit 1 `;
     svnCmd += getSvnBaseCmd();
-    svnCmd += ` ${process.env.SVN_REPO}/ExternalDeviceLayer/Core`;
+    // svnCmd += ` ${process.env.SVN_REPO}/ExternalDeviceLayer/Core`;
+    svnCmd += ' svn://trantor.matrox.com/mgisoft/Mediaprocessor/SV2';
     svnCmd += ' --verbose';
 
     return new Promise((resolve, reject) => {
@@ -252,66 +210,12 @@ const isFilesModified = function (revision) {
 
 module.exports.isFilesModified = isFilesModified;
 
-module.exports.reduceCommits = function reduceCommits(commitList, callback) {
-    processArray(_.sortBy(commitList), isFilesModified)
-        .then((result) => {
-            const commitWithModif = _.filter(_.flattenDeep(result), (revision) => {
-                return revision !== -1;
-            });
-
-            let commitListTmp = commitList;
-            let commitWithModifTmp = commitWithModif;
-
-            const reduceList = [];
-
-            let stopLooking = false;
-
-            while (!stopLooking) {
-                if (commitWithModifTmp.length !== 0) {
-                    const maxCommit = _.maxBy(commitList);
-                    const minCommit = _.maxBy(commitWithModif);
-
-                    reduceList.push({
-                        max: maxCommit,
-                        min: minCommit
-                    });
-
-                    console.log(`[${maxCommit}:${minCommit}]`);
-
-                    commitListTmp = _.filter(commitListTmp, (commit) => {
-                        return parseInt(commit, 10) < minCommit;
-                    });
-
-                    commitWithModifTmp = _.filter(commitWithModifTmp, (commit) => {
-                        return parseInt(commit, 10) < minCommit;
-                    });
-                } else {
-                    reduceList.push({
-                        max: _.maxBy(commitListTmp),
-                        min: _.minBy(commitListTmp)
-                    });
-
-                    console.log(`[${_.maxBy(commitListTmp)}:${_.minBy(commitListTmp)}]`);
-
-                    stopLooking = true;
-                }
-            }
-
-            callback(reduceList);
-        }, (reason) => {
-            console.error(`reduceCommits reason : ${reason}`);
-            callback(reason);
-        })
-        .catch((err) => {
-            console.error(`reduceCommits err : ${err}`);
-        });
-};
-
 module.exports.getHead = function getHead(callback) {
-    const svnRepo = `${process.env.SVN_REPO}/ExternalDeviceLayer/Core`;
-    const svnCmd = `svn info ${svnRepo}`;
+    // const svnCmd = `svn info ${process.env.SVN_REPO}`;
 
+    const svnCmd = 'svn info svn://trantor.matrox.com/mgisoft/Mediaprocessor/SV2';
     const RevStr = 'Last Changed Rev: ';
+
     promiseSpawn.exec(`${svnCmd} | grep '${RevStr}'`)
         .then((result) => {
             callback(result.stdout.replace(RevStr, '').split(/\r?\n/));
@@ -323,21 +227,270 @@ module.exports.getHead = function getHead(callback) {
 };
 
 module.exports.getFile = function getFile(req, res) {
-    svnDb.getList(req.params.commit, req.params.filename)
-        .then((list) => {
-            getTextFile(list[0], req.params.commit)
-                .then((result2) => {
-                    res.json({
-                        file: result2.split(/\r?\n/)
+    svnDb.getCommit(Number(req.params.commit))
+        .then((commitEntry) => {
+            if (commitEntry) {
+                svnDb.getTree(commitEntry.tree)
+                    .then((treeEntry) => {
+                        if (treeEntry) {
+                            const fileFound = _.filter(treeEntry.value, _.bind((file) => {
+                                return file.indexOf(req.params.filename) !== -1;
+                            }, this));
+
+                            if (fileFound) {
+                                svnDb.getBranch(commitEntry.branch)
+                                    .then((branchEntry) => {
+                                        if (branchEntry) {
+                                            // Build full path.
+                                            let fullPath = 'http://trantor.matrox.com/mgisoft/Mediaprocessor/SV2/';
+                                            fullPath += String(branchEntry.value);
+                                            fullPath += 'ExternalDeviceLayer/'
+                                            fullPath += String(fileFound);
+                                            getTextFile(fullPath, req.params.commit)
+                                                .then((result2) => {
+                                                    res.json({
+                                                        file: result2.split(/\r?\n/)
+                                                    });
+                                                })
+                                                .catch((err) => {
+                                                    console.error(`getTextFile err : ${err}`);
+                                                    res.sendStatus(400);
+                                                });
+                                        } else {
+                                            console.error(`Cant find branch ID ${commitEntry.branch}`);
+                                            res.sendStatus(400);
+                                        }
+                                    })
+                                    .catch((err2) => {
+                                        console.error(`getBranch err : ${err2}`);
+                                        res.sendStatus(400);
+                                    });
+                            } else {
+                                console.error(`Cant find filename  ${req.params.filename}`);
+                                res.sendStatus(400);
+                            }
+                        } else {
+                            console.error(`Cant find tree entry for commit ${req.params.commit}`);
+                            res.sendStatus(400);
+                        }
+                    })
+                    .catch((err3) => {
+                        console.error(`getTree err : ${err3}`);
+                        res.sendStatus(400);
                     });
-                })
-                .catch((err2) => {
-                    console.error(`getFile err : ${err2}`);
-                    res.sendStatus(400);
-                });
+            } else {
+                console.error(`Cant find entry for commit ${req.params.commit}`);
+                res.sendStatus(400);
+            }
         })
-        .catch((err) => {
-            console.error(`getFullPath err : ${err}`);
+        .catch((err4) => {
+            console.error(`getCommit err : ${err4}`);
             res.sendStatus(400);
         });
+};
+
+module.exports.getInfo = function getInfo(req, res) {
+    svnDb.getCommit(Number(req.params.commit))
+        .then((commitEntry) => {
+            if (commitEntry) {
+                svnDb.getBranch(commitEntry.branch)
+                    .then((branchEntry) => {
+                        if (branchEntry) {
+                            // Build full path.
+                            let fullPath = 'http://trantor.matrox.com/mgisoft/Mediaprocessor/SV2/';
+                            fullPath += String(branchEntry.value);
+
+                            res.json({
+                                path: fullPath
+                            });
+                        } else {
+                            console.error(`Cant find branch ID ${commitEntry.branch}`);
+                            res.sendStatus(400);
+                        }
+                    })
+                    .catch((err1) => {
+                        console.error(`getBranch err : ${err1}`);
+                        res.sendStatus(400);
+                    });
+
+            } else {
+                console.error(`Cant find entry for commit ${req.params.commit}`);
+                res.sendStatus(400);
+            }
+        })
+        .catch((err2) => {
+            console.error(`getInfo err : ${err2}`);
+            res.sendStatus(400);
+        });
+};
+
+module.exports.getFilterTree = function getFilterTree(branch, revision) {
+    let branchFixed = branch.replace('//', '/');
+
+    if (branchFixed.charAt(0) === '/') {
+        branchFixed = branchFixed.substr(1);
+    }
+
+    if (branchFixed.charAt(branchFixed.length - 1) === '/') {
+        branchFixed = branchFixed.substring(0, branchFixed.length - 1);
+    }
+
+    let svnCmd = '';
+    // svnCmd += `svn list ${svnRepo} `;
+
+    svnCmd += `svn list "svn://trantor.matrox.com/mgisoft/Mediaprocessor/SV2/${branchFixed}/ExternalDeviceLayer@${revision}" `;
+    svnCmd += getSvnBaseCmd();
+    svnCmd += '--depth infinity';
+
+    return new Promise((resolve) => {
+        promiseSpawn.exec(svnCmd)
+            .then((result) => {
+                const files = _.compact(result.stdout.split(/\r?\n/));
+
+                const filterTree = _.filter(files, (file) => {
+                    const tmp = file.substring(file.length - 4);
+                    const ext = tmp.split('.');
+                    return isValidFile(ext[1]);
+                });
+
+                resolve(filterTree);
+            })
+            .catch((err) => {
+                console.error(`getFilterTree err : ${err}`);
+                resolve(null);
+            });
+    });
+};
+
+// AppLayer
+// Base
+// BuildMachine
+// buildruntime
+// Common
+// DeviceLayer
+// Documentation
+// DriverWindows
+// ExternalDeviceLayer
+// Firmware
+// HwRegisters
+// LiberatusLayer
+// OglInterface
+// OsUtil
+// Tests
+// Tools
+// XmslLib
+const isBaseFolder = function isBaseFolder(line) {
+    const splitWords = line.split('/');
+    const keywords = [
+        'AppLayer',
+        'Base',
+        'BuildMachine',
+        'buildruntime',
+        'Common',
+        'DeviceLayer',
+        'Documentation',
+        'DriverWindows',
+        'ExternalDeviceLayer',
+        'Firmware',
+        'HwRegisters',
+        'LiberatusLayer',
+        'OglInterface',
+        'OsUtil',
+        'Tests',
+        'Tools',
+        'XmslLib',
+    ];
+
+    for (let wordsIdx = 0; wordsIdx < splitWords.length; wordsIdx += 1) {
+        for (let keywordsIdx = 0; keywordsIdx < keywords.length; keywordsIdx += 1) {
+            if (splitWords[wordsIdx] === keywords[keywordsIdx]) {
+                return keywords[keywordsIdx];
+            }
+        }
+    }
+
+    return null;
+};
+
+module.exports.getBranchPath = function getBranchPath(revision) {
+    let svnCmd = '';
+    svnCmd += `svn log -r ${revision}:0 --limit 1 `;
+    svnCmd += getSvnBaseCmd();
+    svnCmd += ' svn://trantor.matrox.com/mgisoft/Mediaprocessor/SV2';
+    svnCmd += ' --verbose';
+
+    return new Promise((resolve) => {
+        promiseSpawn.exec(svnCmd)
+            .then((result) => {
+                const tmp = _.find(result.stdout.split(/\r?\n/), (line) => {
+                    let startStr = '';
+
+                    startStr = '   M /Mediaprocessor/SV2/';
+                    if (line.indexOf(startStr) !== -1) {
+                        const lineStr = line.substr(startStr.length);
+                        return isBaseFolder(lineStr);
+                    }
+
+                    startStr = '   D /Mediaprocessor/SV2/';
+                    if (line.indexOf(startStr) !== -1) {
+                        const lineStr = line.substr(startStr.length);
+                        return isBaseFolder(lineStr);
+                    }
+
+                    startStr = '   A /Mediaprocessor/SV2/';
+                    if (line.indexOf(startStr) !== -1) {
+                        const lineStr = line.substr(startStr.length);
+                        return isBaseFolder(lineStr);
+                    }
+
+                    return false;
+                });
+
+                if (tmp) {
+                    let startStr = '   M /Mediaprocessor/SV2/';
+                    if (tmp.indexOf(startStr) !== -1) {
+                        const lineStr = tmp.substr(startStr.length);
+                        const folderFound = isBaseFolder(lineStr);
+
+                        if (folderFound) {
+                            resolve(lineStr.substr(0, lineStr.indexOf(folderFound)));
+                        }
+
+                        resolve(null);
+                    }
+
+                    startStr = '   D /Mediaprocessor/SV2/';
+                    if (tmp.indexOf(startStr) !== -1) {
+                        const lineStr = tmp.substr(startStr.length);
+                        const folderFound = isBaseFolder(lineStr);
+
+                        if (folderFound) {
+                            resolve(lineStr.substr(0, lineStr.indexOf(folderFound)));
+                        }
+
+                        resolve(null);
+                    }
+
+                    startStr = '   A /Mediaprocessor/SV2/';
+                    if (tmp.indexOf(startStr) !== -1) {
+                        const lineStr = tmp.substr(startStr.length);
+                        const folderFound = isBaseFolder(lineStr);
+
+                        if (folderFound) {
+                            resolve(lineStr.substr(0, lineStr.indexOf(folderFound)));
+                        }
+
+                        resolve(null);
+                    }
+
+                    resolve(null);
+                } else {
+                    resolve(null);
+                }
+            })
+            .catch((err) => {
+                console.error(`getBranchPath err : ${err}`);
+                resolve(null);
+            });
+    });
 };

@@ -19,10 +19,6 @@ server.use(express.query());
 
 server.use(bodyParser.json());
 
-// server.use(bodyParser.urlencoded({
-//     extended: false
-// }));
-
 server.use(cookieParser());
 
 server.use(express.static(path.join(__dirname, 'public'), {
@@ -32,6 +28,8 @@ server.use(express.static(path.join(__dirname, 'public'), {
 server.get('/api/getSvnFile/:commit/:filename/:line', svnData.getFile);
 
 server.get('/api/getDmesg/:ip', sshCmd.getDmesg);
+
+server.get('/api/getInfo/:commit', svnData.getInfo);
 
 server.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/index.html'));

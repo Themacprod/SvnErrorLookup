@@ -1,5 +1,6 @@
 const React = require('react');
 const CreateReactClass = require('create-react-class');
+const getInfo = require('./getInfo');
 
 module.exports = CreateReactClass({
     getInitialState: function () {
@@ -10,7 +11,8 @@ module.exports = CreateReactClass({
             codeLine: 0,
             radioId: 'raw',
             ipValid: false,
-            rawValid: false
+            rawValid: false,
+            revisionInfo: 0
         };
     },
     handleInputChange: function (e) {
@@ -44,6 +46,11 @@ module.exports = CreateReactClass({
             rawValid: rawValid
         });
     },
+    handleBranchInputChange: function (e) {
+        this.setState({
+            revisionInfo: Number(e.target.value)
+        });
+    },
     handleIpChange: function (e) {
         const ip = (/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/).exec(e.target.value);
 
@@ -75,6 +82,9 @@ module.exports = CreateReactClass({
         } else {
             console.error('Dont know how to handle');
         }
+    },
+    handleBranchSearchClick: function () {
+        window.location.href = `/getInfo/${this.state.revisionInfo}`;
     },
     handleRadioClick: function (e) {
         let btnState = ' disabled';
@@ -141,6 +151,27 @@ module.exports = CreateReactClass({
             )
         );
     },
+    genBranchLookup: function () {
+        return React.createElement(
+            'div',
+            {
+                className: 'branchinput'
+            },
+            React.createElement(
+                'input',
+                {
+                    id: 'branch',
+                    className: 'form-control form-control-lg',
+                    type: 'text',
+                    placeholder: 'Enter commit number for info like 151862',
+                    onChange: this.handleBranchInputChange
+                }
+            ),
+            React.createElement(getInfo, {
+                commit: this.state.revisionInfo
+            })
+        );
+    },
     render: function () {
         return React.createElement(
             'div',
@@ -179,7 +210,15 @@ module.exports = CreateReactClass({
                     },
                     'Submit'
                 )
-            )
+            ),
+            React.createElement(
+                'div',
+                {
+                    className: 'septxt'
+                },
+                '-'
+            ),
+            this.genBranchLookup()
         );
     }
 });
