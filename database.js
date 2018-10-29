@@ -1,7 +1,8 @@
 const mongoClient = require('mongodb').MongoClient;
+const logger = require('./logger');
 
 module.exports.connect = () => {
-    console.log('Connecting to mongodb://192.168.152.132:27017 ...');
+    logger.log('Connecting to mongodb://192.168.152.132:27017 ...');
 
     const promise = mongoClient.connect(
         'mongodb://192.168.152.132:27017',
@@ -9,7 +10,7 @@ module.exports.connect = () => {
     );
 
     return promise.then((database) => {
-        console.log('Database connected.');
+        logger.log('Database connected.');
 
         const currentDb = database.db('SvnLookUp2');
         module.exports.instance = currentDb;

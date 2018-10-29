@@ -2,6 +2,7 @@ const _ = require('lodash');
 const promiseSpawn = require('child-process-promise');
 const XMLHttpRequest = require('xhr2');
 const svnDb = require('./svnDb');
+const logger = require('./logger');
 
 const getSvnBaseCmd = function () {
     let svnCmd = '';
@@ -97,7 +98,7 @@ const getCommitRange = function (range) {
                 resolve(tmp);
             })
             .catch((err) => {
-                console.error(`getCommitRange err : ${err}`);
+                logger.error(`getCommitRange err : ${err}`);
                 reject(err);
             });
     });
@@ -117,12 +118,12 @@ const processArray = function (array, fn) {
 
 module.exports.getCommits = function getCommits(minRev, maxRev, callback) {
     if (typeof minRev !== 'number') {
-        console.error('Min revision should be a number!');
+        logger.error('Min revision should be a number!');
         return;
     }
 
     if (typeof maxRev !== 'number') {
-        console.error('Max revision should be a number!');
+        logger.error('Max revision should be a number!');
         return;
     }
 
@@ -151,27 +152,21 @@ module.exports.getCommits = function getCommits(minRev, maxRev, callback) {
             .then((result) => {
                 callback(_.flattenDeep(result));
             }, (reason) => {
-                console.error(`getCommits reason : ${reason}`);
+                logger.error(`getCommits reason : ${reason}`);
                 callback(reason);
             })
             .catch((err) => {
-                console.error(`getCommits err : ${err}`);
+                logger.error(`getCommits err : ${err}`);
             });
     } else {
-        console.log('No commit to update');
+        logger.log('No commit to update');
         callback([]);
     }
 };
 
-const log = function (data) {
-    const date = new Date();
-
-    console.log(`${date.toString()} | ${data}`);
-};
-
 const isFilesModified = function (revision) {
     if (typeof revision === 'undefined') {
-        console.error('isFilesModified | revision is undefined');
+        logger.error('isFilesModified | revision is undefined');
     }
 
     let svnCmd = '';
@@ -197,12 +192,12 @@ const isFilesModified = function (revision) {
                 if (addedLine.length === 0) {
                     resolve(-1);
                 } else {
-                    log(`Commit ${revision} has modifications`);
+                    logger.log(`Commit ${revision} has modifications`);
                     resolve(revision);
                 }
             })
             .catch((err) => {
-                console.error(`isFilesModified err : ${err}`);
+                logger.error(`isFilesModified err : ${err}`);
                 reject();
             });
     });
@@ -221,7 +216,7 @@ module.exports.getHead = function getHead(callback) {
             callback(result.stdout.replace(RevStr, '').split(/\r?\n/));
         })
         .catch((err) => {
-            console.error(`svn info err : ${err}`);
+            logger.error(`svn info err : ${err}`);
             callback(null);
         });
 };
@@ -253,38 +248,38 @@ module.exports.getFile = function getFile(req, res) {
                                                     });
                                                 })
                                                 .catch((err) => {
-                                                    console.error(`getTextFile err : ${err}`);
+                                                    logger.error(`getTextFile err : ${err}`);
                                                     res.sendStatus(400);
                                                 });
                                         } else {
-                                            console.error(`Cant find branch ID ${commitEntry.branch}`);
+                                            logger.error(`Cant find branch ID ${commitEntry.branch}`);
                                             res.sendStatus(400);
                                         }
                                     })
                                     .catch((err2) => {
-                                        console.error(`getBranch err : ${err2}`);
+                                        logger.error(`getBranch err : ${err2}`);
                                         res.sendStatus(400);
                                     });
                             } else {
-                                console.error(`Cant find filename  ${req.params.filename}`);
+                                logger.error(`Cant find filename  ${req.params.filename}`);
                                 res.sendStatus(400);
                             }
                         } else {
-                            console.error(`Cant find tree entry for commit ${req.params.commit}`);
+                            logger.error(`Cant find tree entry for commit ${req.params.commit}`);
                             res.sendStatus(400);
                         }
                     })
                     .catch((err3) => {
-                        console.error(`getTree err : ${err3}`);
+                        logger.error(`getTree err : ${err3}`);
                         res.sendStatus(400);
                     });
             } else {
-                console.error(`Cant find entry for commit ${req.params.commit}`);
+                logger.error(`Cant find entry for commit ${req.params.commit}`);
                 res.sendStatus(400);
             }
         })
         .catch((err4) => {
-            console.error(`getCommit err : ${err4}`);
+            logger.error(`getCommit err : ${err4}`);
             res.sendStatus(400);
         });
 };
@@ -304,22 +299,21 @@ module.exports.getInfo = function getInfo(req, res) {
                                 path: fullPath
                             });
                         } else {
-                            console.error(`Cant find branch ID ${commitEntry.branch}`);
+                            logger.error(`Cant find branch ID ${commitEntry.branch}`);
                             res.sendStatus(400);
                         }
                     })
                     .catch((err1) => {
-                        console.error(`getBranch err : ${err1}`);
+                        logger.error(`getBranch err : ${err1}`);
                         res.sendStatus(400);
                     });
-
             } else {
-                console.error(`Cant find entry for commit ${req.params.commit}`);
+                logger.error(`Cant find entry for commit ${req.params.commit}`);
                 res.sendStatus(400);
             }
         })
         .catch((err2) => {
-            console.error(`getInfo err : ${err2}`);
+            logger.error(`getInfo err : ${err2}`);
             res.sendStatus(400);
         });
 };
@@ -356,7 +350,7 @@ module.exports.getFilterTree = function getFilterTree(branch, revision) {
                 resolve(filterTree);
             })
             .catch((err) => {
-                console.error(`getFilterTree err : ${err}`);
+                logger.error(`getFilterTree err : ${err}`);
                 resolve(null);
             });
     });
@@ -489,7 +483,7 @@ module.exports.getBranchPath = function getBranchPath(revision) {
                 }
             })
             .catch((err) => {
-                console.error(`getBranchPath err : ${err}`);
+                logger.error(`getBranchPath err : ${err}`);
                 resolve(null);
             });
     });

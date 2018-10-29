@@ -73,8 +73,6 @@ module.exports = CreateReactClass({
             radioState = true;
         }
 
-        console.log(radioState);
-
         return React.createElement(
             'div',
             {

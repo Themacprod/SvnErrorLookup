@@ -19,7 +19,6 @@ module.exports = CreateReactClass({
                 }
 
                 if (res) {
-                    console.log(res.body.path);
                     this.setState({
                         path: res.body.path
                     });

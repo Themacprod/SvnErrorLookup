@@ -2,6 +2,7 @@ var database = require("./database");
 var svnData = require("./svnData");
 var _ = require('lodash');
 var ObjectID = require("mongodb").ObjectID;
+const logger = require('./logger');
 
 const getLatestCommit = function() {
     return new Promise(function (resolve, reject) {
@@ -32,12 +33,12 @@ const getSvnHeadPromise = function() {
 
 const getCommitPromise = function(lastCommitStored, headCommit) {
     if (typeof lastCommitStored !== 'number') {
-        console.error('lastCommitStored revision should be a number!');
+        logger.error('lastCommitStored revision should be a number!');
         return;
     }
 
     if (typeof headCommit !== 'number') {
-        console.error('headCommit revision should be a number!');
+        logger.error('headCommit revision should be a number!');
         return;
     }
 
@@ -50,23 +51,6 @@ const getCommitPromise = function(lastCommitStored, headCommit) {
             }
         )
     })
-};
-
-const addZero = function(x, n) {
-    while (x.toString().length < n) {
-        x = "0" + x;
-    }
-    return x;
-};
-
-const log = function(data) {
-    let date = new Date();
-    let h = addZero(date.getHours(), 2);
-    let m = addZero(date.getMinutes(), 2);
-    let s = addZero(date.getSeconds(), 2);
-    let ms = addZero(date.getMilliseconds(), 3);
-
-    console.log(`${h}:${m}:${s}:${ms} | ${data}`);
 };
 
 const findBranch = function(branch) {
@@ -107,7 +91,7 @@ const AddBranch = function(branch) {
         if (err) {
             console.error(err);
         } else {
-            log(`Added new branch [${branch.value}] in the database`);
+            logger.log(`Added new branch [${branch.value}] in the database`);
         }
     });
 };
@@ -120,7 +104,7 @@ const AddTree = function(tree) {
         if (err) {
             console.error(err);
         } else {
-            log('Added new tree in the database');
+            logger.log('Added new tree in the database');
         }
     });
 };
@@ -134,7 +118,7 @@ const AddCommit = function(commit) {
         if (err) {
             console.error(err);
         } else {
-            log(`Added commit ${commit.value} in the database`);
+            logger.log(`Added commit ${commit.value} in the database`);
         }
     });
 };
@@ -148,9 +132,9 @@ const insertInFullList = function insertInFullList(revisions) {
         list: revisions
     }, function(err) {
         if (err) {
-            console.log(err);
+            logger.log(err);
         } else {
-            console.log('Added new commit in full list');
+            logger.log('Added new commit in full list');
         }
     });
 };
@@ -173,10 +157,10 @@ const addToFullList = function addToFullList(revisions) {
                     }
                 }, function(err2) {
                     if (err2) {
-                        log(err2);
+                        logger.error(err2);
                         reject(err2);
                     } else {
-                        log(`Collection full : Added new revisions`);
+                        logger.log(`Collection full : Added new revisions`);
                         resolve();
                     }
                 });
@@ -193,7 +177,7 @@ async function updateDbRawFullList () {
     if (headDbTmp) {
         headDb = Number(headDbTmp);
     } else {
-        console.log(`No maximum stored in the database, use ${process.env.SVN_START_COMMIT} as first commit`);
+        logger.log(`No maximum stored in the database, use ${process.env.SVN_START_COMMIT} as first commit`);
         headDb = Number(process.env.SVN_START_COMMIT);
     }
 
@@ -203,10 +187,10 @@ async function updateDbRawFullList () {
     let diff = headSvn - headDb;
 
     if (diff > 0) {
-        log(`SVN Head revision : ${headSvn}`);
-        log(`DB Head revision : ${headDb}`);
-        log(`Number of commit to update = ${diff}`);
-        log(`Getting commit list between [${headSvn} and ${headDb}] ... `);
+        logger.log(`SVN Head revision : ${headSvn}`);
+        logger.log(`DB Head revision : ${headDb}`);
+        logger.log(`Number of commit to update = ${diff}`);
+        logger.log(`Getting commit list between [${headSvn} and ${headDb}] ... `);
 
         let commitList = await getCommitPromise(headDb, headSvn);
 
@@ -217,7 +201,7 @@ async function updateDbRawFullList () {
             await insertInFullList(commitList);
         }
     } else {
-        log('Collection full : List is up to date');
+        logger.log('Collection full : List is up to date');
     }
 };
 
@@ -310,7 +294,7 @@ const getBranch = function getBranch(branchId) {
 module.exports.getBranch = getBranch;
 
 async function SanityCheck () {
-    log('Run sanity check ...');
+    logger.log('Run sanity check ...');
 
     let fullCommitList = await getRawFullList();
     let noEntryCount = 0;
@@ -324,18 +308,18 @@ async function SanityCheck () {
         } else {
             noEntryCount += 1;
 
-            log(`No entry found for commit ${fullCommitList[i]}`);
+            logger.log(`No entry found for commit ${fullCommitList[i]}`);
             await AddRevision(Number(fullCommitList[i]));
-            // log(`Collection commits : Wait 500ms before next request ...`);
+            // logger.log(`Collection commits : Wait 500ms before next request ...`);
             await PromiseSleep(250);
         }
     }
 
     if (noEntryCount > 0) {
-        log(`No entry for ${noEntryCount} commit(s) vs ${EntryCount} commits`);
+        logger.log(`No entry for ${noEntryCount} commit(s) vs ${EntryCount} commits`);
     }
 
-    log('Sanity check done');
+    logger.log('Sanity check done');
 };
 
 async function updateASync () {
@@ -357,7 +341,7 @@ async function updateASync () {
     if (ret.length !== 0) {
         dbHead = Number(ret[0].value);
     } else {
-        log(`Collection commits : No commit stored, used default min : ${dbHead}`);
+        logger.log(`Collection commits : No commit stored, used default min : ${dbHead}`);
     }
 
     let commitList = _.filter(fullCommitList, function(commit) {
@@ -365,23 +349,23 @@ async function updateASync () {
     })
 
     if (commitList.length > 0) {
-        log(`Collection commits : Need to update ${commitList.length} commit(s)`);
+        logger.log(`Collection commits : Need to update ${commitList.length} commit(s)`);
     }
     
     for (let i = 0; i < commitList.length; i += 1) {
         await AddRevision(Number(commitList[i]));
-        // log(`Collection commits : Wait 500ms before next request ...`);
+        // logger.log(`Collection commits : Wait 500ms before next request ...`);
         await PromiseSleep(250);
     }
 
-    log('Commits are up to date');
+    logger.log('Commits are up to date');
 
     await SanityCheck();
 };
 
 async function AddRevision (revision) {
-    // log(`--------------------------------------------------------------`);
-    // log(`Collection commits : Adding revision ${revision} in DB...`);
+    // logger.log(`--------------------------------------------------------------`);
+    // logger.log(`Collection commits : Adding revision ${revision} in DB...`);
 
     //
     // Branch
@@ -393,7 +377,7 @@ async function AddRevision (revision) {
         let branchFound = await findBranch(branchPath);
     
         if (branchFound) {
-            // log(`Collection branches : Branch [${branchPath}] already exist in DB.`);
+            // logger.log(`Collection branches : Branch [${branchPath}] already exist in DB.`);
             branchId = branchFound._id;
         } else {
             branchId = new ObjectID();
@@ -417,7 +401,7 @@ async function AddRevision (revision) {
         }
 
         if (treeFound) { 
-            // log(`Collection trees : Tree for revision ${revision} already exist in DB.`);
+            // logger.log(`Collection trees : Tree for revision ${revision} already exist in DB.`);
             treeId = treeFound._id;
         } else {
             treeId = new ObjectID();
@@ -430,7 +414,7 @@ async function AddRevision (revision) {
             AddTree(tree);
         }
     } else {
-        log(`Collection branches : Can't find branch for revision ${revision}.`);
+        logger.log(`Collection branches : Can't find branch for revision ${revision}.`);
     }
 
     //
