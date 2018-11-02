@@ -71,7 +71,7 @@ module.exports.getFile = function getFile(req, res) {
                                         if (branchEntry) {
                                             // Build full path.
                                             let fullPath = '';
-                                            fullPath += `http:${process.env.SS_SVN_BASE_REPO}`;
+                                            fullPath += `http:${process.env.SS_SVN_BASE_REPO}/`;
                                             fullPath += String(branchEntry.value);
                                             fullPath += 'ExternalDeviceLayer/';
                                             fullPath += String(fileFound);
@@ -127,7 +127,7 @@ module.exports.getInfo = function getInfo(req, res) {
                         if (branchEntry) {
                             // Build full path.
                             let fullPath = '';
-                            fullPath += process.env.SS_HTTP_BASE_REPO;
+                            fullPath += `http:${process.env.SS_SVN_BASE_REPO}/`;
                             fullPath += String(branchEntry.value);
 
                             res.json({
