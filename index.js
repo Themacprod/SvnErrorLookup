@@ -1,6 +1,4 @@
 const co = require('co');
-const Cron = require('cron');
-const svnDb = require('./svnDb');
 const database = require('./database');
 const server = require('./server');
 const logger = require('./logger');
@@ -10,59 +8,38 @@ process.on('uncaughtException', (err) => {
     console.error(err);
 });
 
-const initCronJobs = function () {
-    const cacheJob = new Cron.CronJob({
-        cronTime: '* * * * *',
-        onTick: function () {
-            svnDb.update();
-        },
-        start: false
-    });
-
-    cacheJob.start();
-};
-
 co(function* main() {
     // Check environement variable.
-    if (typeof process.env.PORT === 'undefined') {
-        logger.error('PORT is not defined as environment variable');
+    if (typeof process.env.SS_PORT === 'undefined') {
+        logger.error('SS_PORT is not defined as environment variable');
     }
 
-    if (typeof process.env.MONGODB_URL === 'undefined') {
-        logger.error('MONGODB_URL is not defined as environment variable');
+    if (typeof process.env.SS_MONGODB_URL === 'undefined') {
+        logger.error('SS_MONGODB_URL is not defined as environment variable');
     }
 
-    if (typeof process.env.SVN_READ_USER === 'undefined') {
-        logger.error('SVN_READ_USER is not defined as environment variable');
+    if (typeof process.env.SS_MONGODB_NAME === 'undefined') {
+        logger.error('SS_MONGODB_NAME is not defined as environment variable');
     }
 
-    if (typeof process.env.SVN_READ_PASS === 'undefined') {
-        logger.error('SVN_READ_PASS is not defined as environment variable');
+    if (typeof process.env.SS_SVN_READ_USER === 'undefined') {
+        logger.error('SS_SVN_READ_USER is not defined as environment variable');
     }
 
-    if (typeof process.env.SVN_BASE_REPO === 'undefined') {
-        logger.error('SVN_REPO is not defined as environment variable');
+    if (typeof process.env.SS_SVN_READ_PASS === 'undefined') {
+        logger.error('SS_SVN_READ_PASS is not defined as environment variable');
     }
 
-    if (typeof process.env.SVN_REPO === 'undefined') {
-        logger.error('SVN_REPO is not defined as environment variable');
-    }
-
-    if (typeof process.env.SVN_START_COMMIT === 'undefined') {
-        logger.error('SVN_START_COMMIT is not defined as environment variable');
+    if (typeof process.env.SS_SVN_BASE_REPO === 'undefined') {
+        logger.error('SS_SVN_BASE_REPO is not defined as environment variable');
     }
 
     // Wait for database to connect.
     yield database.connect();
-
-    // Run server.
-    const port = 5000;
-    server.listen(port);
-    logger.log(`Server listening on port ${port} ...`);
 }).then(() => {
-    // Build / update SVN database.
-    logger.log('Check / update SVN database ...');
-    initCronJobs();
+    // Run server.
+    server.listen(process.env.SS_PORT);
+    logger.log(`Server listening on port ${process.env.SS_PORT} ...`);
 }).catch((err) => {
     logger.error(err);
 });
