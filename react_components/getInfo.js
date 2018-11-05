@@ -17,40 +17,46 @@ module.exports = CreateReactClass({
                         path: `Can't find branch for commit ${commit}`
                     });
                 }
-
-                if (res) {
+                if (res.body) {
                     this.setState({
                         path: res.body.path
                     });
                 }
             });
     },
-    render: function () {
-        if (this.props.commit !== this.prevCommit) {
-            this.prevCommit = this.props.commit;
-
-            if (typeof this.props.commit === 'number') {
-                const validCommit = (/^[0-9]{6}/).exec(this.props.commit);
-                if (validCommit) {
-                    this.getInfo(this.props.commit);
-                } else {
-                    this.setState({
-                        path: ''
-                    });
-                }
-            } else {
-                this.setState({
-                    path: ''
-                });
-            }
+    handleBranchInputChange: function (e) {
+        const validCommit = (/^[0-9]{6}/).exec(e.target.value);
+        if (validCommit) {
+            this.getInfo(validCommit[0]);
+        } else {
+            this.setState({
+                path: ''
+            });
         }
-
+    },
+    render: function () {
         return React.createElement(
             'div',
             {
-                className: 'commit-info'
+                className: 'branchinput'
             },
-            this.state.path
+            React.createElement(
+                'input',
+                {
+                    id: 'branch',
+                    className: 'form-control form-control-lg',
+                    type: 'text',
+                    placeholder: 'Enter commit number for info like 151862',
+                    onChange: this.handleBranchInputChange
+                }
+            ),
+            React.createElement(
+                'div',
+                {
+                    className: 'commit-info'
+                },
+                this.state.path
+            )
         );
     }
 });

@@ -12,8 +12,7 @@ module.exports = CreateReactClass({
             btnState: ' disabled',
             radioId: 'raw',
             ipValid: false,
-            rawValid: false,
-            revisionInfo: 0
+            rawValid: false
         };
     },
     handleInputChange: function (e) {
@@ -36,11 +35,6 @@ module.exports = CreateReactClass({
         this.setState({
             btnState: btnState,
             rawValid: rawValid
-        });
-    },
-    handleBranchInputChange: function (e) {
-        this.setState({
-            revisionInfo: Number(e.target.value)
         });
     },
     handleIpChange: function (e) {
@@ -74,9 +68,6 @@ module.exports = CreateReactClass({
         } else {
             console.error('Dont know how to handle');
         }
-    },
-    handleBranchSearchClick: function () {
-        window.location.href = `/getInfo/${this.state.revisionInfo}`;
     },
     handleRadioClick: function (e) {
         let btnState = ' disabled';
@@ -144,27 +135,6 @@ module.exports = CreateReactClass({
             )
         );
     },
-    genBranchLookup: function () {
-        return React.createElement(
-            'div',
-            {
-                className: 'branchinput'
-            },
-            React.createElement(
-                'input',
-                {
-                    id: 'branch',
-                    className: 'form-control form-control-lg',
-                    type: 'text',
-                    placeholder: 'Enter commit number for info like 151862',
-                    onChange: this.handleBranchInputChange
-                }
-            ),
-            React.createElement(getInfo, {
-                commit: this.state.revisionInfo
-            })
-        );
-    },
     render: function () {
         return React.createElement(
             'div',
@@ -211,7 +181,7 @@ module.exports = CreateReactClass({
                 },
                 '-'
             ),
-            this.genBranchLookup()
+            React.createElement(getInfo)
         );
     }
 });
