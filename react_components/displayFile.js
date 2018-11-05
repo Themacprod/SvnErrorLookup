@@ -4,12 +4,14 @@ const request = require('superagent');
 const _ = require('lodash');
 const CodeMirror = require('react-codemirror2').UnControlled;
 const loading = require('./loading');
+const displayError = require('./displayError');
 
 module.exports = CreateReactClass({
     getInitialState: function () {
         return {
             file: [],
-            loading: false
+            loading: false,
+            error: false
         };
     },
     getSvnFile: function (params) {
@@ -25,10 +27,12 @@ module.exports = CreateReactClass({
             .get(`/api/getSvnFile${param}`)
             .end((err, res) => {
                 if (err) {
-                    console.error('Get SVN file failed!');
+                    this.setState({
+                        error: true
+                    });
                 }
 
-                if (res) {
+                if (res.body) {
                     this.setState({
                         file: res.body.file
                     });
@@ -73,6 +77,12 @@ module.exports = CreateReactClass({
     render: function () {
         if (this.state.loading === true) {
             return React.createElement(loading);
+        }
+
+        if (this.state.error === true) {
+            return React.createElement(displayError, {
+                params: this.props.match.params
+            });
         }
 
         return React.createElement(

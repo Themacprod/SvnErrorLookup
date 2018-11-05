@@ -33,10 +33,9 @@ module.exports = CreateReactClass({
                 });
             });
     },
-    componentWillMount: function () {
-        this.getInfo(this.props.match.params);
-    },
     render: function () {
+        this.getInfo(this.props.match.params);
+
         if (this.state.loading === true) {
             return React.createElement(loading);
         }

@@ -2,13 +2,14 @@ const React = require('react');
 const CreateReactClass = require('create-react-class');
 const getInfo = require('./getInfo');
 
+let grevision = 0;
+let gfilename = '';
+let gcodeline = 0;
+
 module.exports = CreateReactClass({
     getInitialState: function () {
         return {
             btnState: ' disabled',
-            revision: 0,
-            filename: '',
-            codeLine: 0,
             radioId: 'raw',
             ipValid: false,
             rawValid: false,
@@ -24,21 +25,12 @@ module.exports = CreateReactClass({
         let rawValid = false;
 
         if (codeLineStr && svnCommitStr && fileStr) {
-            const codeLine = parseInt(codeLineStr[0].substring(1, codeLineStr[0].length - 1), 10);
-            let revision = parseInt(svnCommitStr[0].substring(1, svnCommitStr[0].length - 1), 10);
-
-            if (revision === 0) {
-                revision = 'HEAD';
-            }
-
             btnState = 'btn btn-dark';
             rawValid = true;
 
-            this.setState({
-                revision: revision,
-                filename: fileStr[0],
-                codeLine: codeLine
-            });
+            grevision = parseInt(svnCommitStr[0].substring(1, svnCommitStr[0].length - 1), 10);
+            gfilename = fileStr;
+            gcodeline = parseInt(codeLineStr[0].substring(1, codeLineStr[0].length - 1), 10);
         }
 
         this.setState({
@@ -73,9 +65,9 @@ module.exports = CreateReactClass({
     },
     handleButtonClick: function () {
         if (this.state.radioId === 'raw') {
-            let param = `/${this.state.revision}`;
-            param += `/${this.state.filename}`;
-            param += `/${this.state.codeLine}`;
+            let param = `/${grevision}`;
+            param += `/${gfilename[0]}`;
+            param += `/${gcodeline}`;
             window.location.href = `/getSvnFile${param}`;
         } else if (this.state.radioId === 'ip') {
             window.location.href = `/getDmesg/${this.state.ip}`;
@@ -133,7 +125,8 @@ module.exports = CreateReactClass({
                         {
                             id: id,
                             type: 'radio',
-                            checked: radioState
+                            checked: radioState,
+                            onChange: this.handleRadioClick
                         }
                     )
                 )

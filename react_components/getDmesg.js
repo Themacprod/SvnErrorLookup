@@ -98,7 +98,8 @@ module.exports = CreateReactClass({
                         {
                             id: id,
                             type: 'radio',
-                            checked: radioState
+                            checked: radioState,
+                            onChange: this.handleRadioClick
                         }
                     )
                 )
