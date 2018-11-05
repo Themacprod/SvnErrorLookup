@@ -1,6 +1,6 @@
 {
   "name": "svnerrorlookup",
-  "description": "SVN error lookup",
+  "description": "SVN lookup",
   "version": "1.0.0",
   "repository": {
     "type": "git",
